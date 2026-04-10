@@ -41,42 +41,46 @@
         user = await window.MarketplaceDB.getCurrentSession();
       ">
 
-    <!-- Navbar -->
-    <header class="sticky top-0 z-50 w-full border-b border-border glass bg-white/80 dark:bg-navy/80">
-        <div class="container mx-auto px-4 h-16 flex items-center justify-between gap-2">
-            <a href="/" class="flex items-center gap-2 min-w-0">
-                <img src="assets/images/mgce.jpeg" alt="MGCE Logo" class="h-8 md:h-12 w-auto shrink-0 logo-glow">
-                <div class="flex flex-col leading-tight border-l border-slate-200 dark:border-slate-700 pl-2 overflow-hidden">
-                    <span class="font-black text-navy dark:text-white text-sm md:text-lg tracking-tight uppercase truncate">MGCE</span>
-                    <span class="text-[8px] text-accent font-bold uppercase tracking-tighter italic truncate">Marketplace</span>
+    <!-- Luxe Navbar -->
+    <div class="fixed top-6 inset-x-0 z-50 px-4 md:px-8 pointer-events-none">
+        <header class="container mx-auto max-w-6xl nav-capsule flex items-center justify-between gap-4 pointer-events-auto animate-luxe-up">
+            <a href="/" class="flex items-center gap-3 pl-4 group">
+                <img src="assets/images/mgce.jpeg" alt="Logo" class="h-10 w-10 min-w-[40px] rounded-2xl shadow-lg shadow-black/20 group-hover:scale-110 transition-transform">
+                <div class="hidden sm:flex flex-col border-l border-white/10 pl-3">
+                    <span class="text-white font-black uppercase tracking-tighter text-lg leading-tight">MGCE</span>
+                    <span class="text-[8px] text-primary font-black uppercase tracking-[0.3em]">Elite Market</span>
                 </div>
             </a>
             
-            <nav class="flex items-center gap-1 md:gap-4 shrink-0">
-                <a href="/shop" class="hidden lg:block text-sm font-bold hover:text-primary transition-colors dark:text-slate-300">Shop</a>
-                <template x-if="user && user.role === 'seller'">
-                    <a href="/sell" class="hidden lg:block text-sm font-bold hover:text-primary transition-colors dark:text-slate-300">Post</a>
-                </template>
-                
-                <!-- Favorites Link -->
-                <a href="shop.html?filter=favorites" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-red-500 transition-colors" title="My Favorites">
-                    <i data-lucide="heart" class="w-5 h-5"></i>
-                </a>
+            <nav class="flex items-center gap-1 md:gap-2 pr-2">
+                <div class="hidden md:flex items-center gap-1 mr-2 bg-white/5 p-1 rounded-2xl">
+                    <a href="shop.html" class="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Shop</a>
+                    <template x-if="user && user.role === 'seller'">
+                        <a href="sell.html" class="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Post</a>
+                    </template>
+                </div>
 
-                <!-- Theme Toggle -->
-                <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all text-accent group" title="Switch Theme">
-                    <i data-lucide="sun-moon" class="w-5 h-5 group-hover:rotate-12 transition-transform"></i>
-                </button>
-
-                <a href="/account" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-navy dark:text-slate-300"><i data-lucide="user" class="w-5 h-5"></i></a>
-                <button x-show="user" @click="window.handleLogout()" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors" title="Log Out">
-                    <i data-lucide="log-out" class="w-5 h-5"></i>
-                </button>
-                <button @click="mobileMenu = !mobileMenu" class="md:hidden p-2 text-navy dark:text-white"><i data-lucide="menu" class="w-5 h-5"></i></button>
+                <!-- Icons Group -->
+                <div class="flex items-center gap-1">
+                    <a href="shop.html?filter=favorites" class="p-3 text-red-500 hover:bg-white/5 rounded-2xl transition-all" title="My Favorites">
+                        <i data-lucide="heart" class="w-5 h-5"></i>
+                    </a>
+                    <button onclick="toggleTheme()" class="p-3 text-primary hover:bg-white/5 rounded-2xl transition-all group" title="Switch Theme">
+                        <i data-lucide="sun-moon" class="w-5 h-5 group-hover:rotate-12 transition-transform"></i>
+                    </button>
+                    <a href="account.html" class="p-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-2xl transition-all">
+                        <i data-lucide="user" class="w-5 h-5"></i>
+                    </a>
+                    <button x-show="user" @click="window.handleLogout()" class="p-3 text-red-400 hover:bg-red-500/10 rounded-2xl transition-all">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </button>
+                    <button @click="mobileMenu = !mobileMenu" class="lg:hidden p-3 text-white">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                </div>
             </nav>
-        </div>
-
-    </header>
+        </header>
+    </div>
 
     <!-- Mobile Menu Overlay (Moved to Body Root for compatibility) -->
     <div x-show="mobileMenu" 
@@ -141,28 +145,30 @@
     </div>
 
     <main class="dark:bg-navy">
-        <!-- Maseno Hero -->
-        <section class="relative overflow-hidden bg-cream dark:bg-navy-dark py-16 md:py-24">
-            <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
+        <!-- Floating Hero Section -->
+        <section class="pt-32 pb-12 relative overflow-hidden">
             <div class="container mx-auto px-4 relative z-10">
-                <div class="max-w-3xl mx-auto text-center space-y-8">
-                    <div class="animate-fade-in-up">
-                        <span class="inline-block px-4 py-1.5 bg-navy text-primary rounded-full text-[10px] font-black uppercase tracking-widest mb-4">
-                            MGCE presents
+                <div class="luxe-card p-12 md:p-20 text-center space-y-10 relative overflow-hidden animate-luxe-up">
+                    <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-primary/10 rounded-full blur-3xl"></div>
+                    
+                    <div class="relative z-10 space-y-6">
+                        <span class="inline-block px-6 py-2 bg-navy text-primary rounded-full text-[10px] font-black uppercase tracking-[0.3em] mb-2 border border-primary/20">
+                            Elite Campus Hub
                         </span>
-                        <h1 class="text-5xl md:text-8xl font-black text-navy dark:text-white leading-tight uppercase tracking-tighter">
+                        <h1 class="text-5xl md:text-8xl font-black text-navy dark:text-white leading-[0.9] uppercase tracking-tighter">
                             MGCE <span class="text-primary italic">MARKET</span>
                         </h1>
-                        <p class="mt-6 text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto font-medium">
-                            The elite marketplace for Maseno students and staff. Get your hair done, buy handmade crafts, or find campus services—all in one place.
+                        <p class="max-w-2xl mx-auto text-lg text-slate-500 font-medium leading-relaxed">
+                            Empowering Maseno with a premium, student-first marketplace. Explore hand-picked services and artisan crafts from our community.
                         </p>
                     </div>
 
-                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style="animation-delay: 0.2s">
-                        <a href="auth.html?role=buyer&mode=signup" class="w-full sm:w-auto px-10 py-5 bg-navy text-primary rounded-2xl font-black shadow-2xl shadow-navy/20 hover:scale-105 transition-all text-sm uppercase tracking-widest">
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-6 relative z-10">
+                        <a href="shop.html" class="w-full sm:w-auto px-12 py-6 bg-navy text-primary rounded-[24px] font-black shadow-2xl shadow-navy/20 hover:scale-105 active:scale-95 transition-all text-sm uppercase tracking-widest flex items-center gap-3">
+                            <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                             Explore Shop
                         </a>
-                        <a href="auth.html?role=seller&mode=signup" class="w-full sm:w-auto px-10 py-5 bg-white dark:bg-transparent text-navy dark:text-primary border-2 border-navy dark:border-primary rounded-2xl font-black hover:bg-navy hover:text-white dark:hover:bg-primary dark:hover:text-navy transition-all text-sm uppercase tracking-widest">
+                        <a href="auth.html?role=seller&mode=signup" class="w-full sm:w-auto px-12 py-6 bg-white dark:bg-transparent text-navy dark:text-primary border-2 border-navy/10 dark:border-primary/20 rounded-[24px] font-black hover:bg-navy hover:text-white transition-all text-sm uppercase tracking-widest">
                             Start Selling
                         </a>
                     </div>
@@ -170,23 +176,33 @@
             </div>
         </section>
 
-        <!-- Trending Now (The Elite Pulse) -->
-        <section class="py-12 bg-white dark:bg-navy-dark overflow-hidden" x-data="{ currentSlide: 0 }">
+        <!-- Trending Now -->
+        <section class="py-12 relative overflow-hidden">
             <div class="container mx-auto px-4">
-                <div class="flex items-center justify-between mb-8">
-                    <div>
-                        <h2 class="text-xl font-black text-navy dark:text-white uppercase tracking-widest border-l-4 border-primary pl-4">Trending Now</h2>
-                        <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Most loved items on campus</p>
+                <div class="luxe-card p-10 space-y-12">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-50 dark:border-white/5 pb-8">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 bg-primary/10 rounded-[20px] flex items-center justify-center text-primary shadow-lg">
+                                <i data-lucide="zap" class="w-8 h-8"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-black text-navy dark:text-white uppercase tracking-tighter">Trending Now</h2>
+                                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-black">Maseno's Most Loved</p>
+                            </div>
+                        </div>
+                        <a href="shop.html" class="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-widest group">
+                            Explore All
+                            <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
                     </div>
-                    <a href="shop.html" class="text-[10px] font-black text-primary uppercase tracking-widest hover:underline decoration-2 underline-offset-4">Explore All</a>
-                </div>
 
-                <div class="relative group">
-                    <div id="trending-slider" class="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-6 no-scrollbar transition-all duration-500">
-                        <!-- Trending items dynamically injected by app.js -->
-                        <div class="flex-shrink-0 w-72 h-96 bg-slate-50 dark:bg-navy animate-pulse rounded-[32px] snap-center border border-border/20"></div>
-                        <div class="flex-shrink-0 w-72 h-96 bg-slate-50 dark:bg-navy animate-pulse rounded-[32px] snap-center border border-border/20"></div>
-                        <div class="flex-shrink-0 w-72 h-96 bg-slate-50 dark:bg-navy animate-pulse rounded-[32px] snap-center border border-border/20"></div>
+                    <div class="relative">
+                        <div id="trending-slider" class="flex gap-8 overflow-x-auto snap-x snap-mandatory pb-10 no-scrollbar">
+                            <!-- Trending items dynamically injected by app.js -->
+                            <div class="flex-shrink-0 w-80 h-96 luxe-card animate-pulse opacity-20"></div>
+                            <div class="flex-shrink-0 w-80 h-96 luxe-card animate-pulse opacity-20 delay-75"></div>
+                            <div class="flex-shrink-0 w-80 h-96 luxe-card animate-pulse opacity-20 delay-150"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -213,30 +229,41 @@
             </div>
         </section>
 
-        <!-- Categories -->
-        <section class="py-16 bg-white dark:bg-navy border-y border-border/50 dark:border-slate-800">
+        <!-- Discover Categories -->
+        <section class="py-12 bg-white dark:bg-navy border-y border-border/50 dark:border-slate-800">
             <div class="container mx-auto px-4">
-                <div class="flex items-center justify-between mb-10">
+                <div class="flex items-center justify-between mb-12">
                     <h2 class="text-xl font-black text-navy dark:text-white uppercase tracking-widest border-l-4 border-primary pl-4">Discover Categories</h2>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6" id="category-grid">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8" id="category-grid">
                     <!-- Categories will be injected by app.js -->
                 </div>
             </div>
         </section>
 
-        <!-- Product/Service Feed -->
-        <section class="py-20 bg-cream/30 dark:bg-navy/50">
+        <!-- Product/Service Feed (Luxe Canvas) -->
+        <section class="py-12 bg-slate-50 dark:bg-navy">
             <div class="container mx-auto px-4">
-                <div class="flex items-center justify-between gap-4 mb-12">
-                    <div>
-                        <h2 class="text-3xl font-black text-navy dark:text-white uppercase tracking-tight">Top Picks in Maseno</h2>
-                        <p class="text-slate-500 dark:text-slate-400 text-sm">Services and products trending on campus right now.</p>
+                <div class="luxe-card p-10 md:p-16 space-y-12 animate-luxe-up">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-50 dark:border-white/5 pb-10">
+                        <div>
+                            <h2 class="text-3xl font-black text-navy dark:text-white uppercase tracking-tighter">Elite Top Picks</h2>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-black mt-1">Hand-Picked Maseno Selection</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <a href="shop.html" class="px-8 py-4 bg-navy text-primary rounded-[24px] font-black text-[10px] uppercase tracking-widest shadow-xl shadow-navy/20 hover:scale-105 transition-all">
+                                Explore Full Market
+                            </a>
+                        </div>
                     </div>
-                </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" id="featured-listings">
-                    <!-- Listings will be injected by app.js -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" id="featured-listings">
+                        <!-- Items injected by app.js -->
+                        <div class="animate-pulse bg-slate-50 dark:bg-slate-800/50 rounded-[40px] aspect-[4/5]"></div>
+                        <div class="animate-pulse bg-slate-50 dark:bg-slate-800/50 rounded-[40px] aspect-[4/5]"></div>
+                        <div class="animate-pulse bg-slate-50 dark:bg-slate-800/50 rounded-[40px] aspect-[4/5]"></div>
+                        <div class="animate-pulse bg-slate-50 dark:bg-slate-800/50 rounded-[40px] aspect-[4/5]"></div>
+                    </div>
                 </div>
             </div>
         </section>

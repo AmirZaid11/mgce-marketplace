@@ -135,25 +135,42 @@ document.addEventListener('DOMContentLoaded', async () => {
             resetSessionTimer();
         }
 
-        // --- Elite Pack 3: Hub Initializers ---
+    // --- Elite Cloud Pulse ---
+    const pulse = document.getElementById('cloud-pulse');
+    if (pulse && window.MarketplaceDB.firestore) {
+        setTimeout(() => {
+            pulse.classList.remove('opacity-0');
+            pulse.classList.add('opacity-100');
+        }, 1500); 
+    }
+
+    // --- Real-Time Sync Engine: Re-render on Cloud Update ---
+    window.addEventListener('mgce-db-updated', async (e) => {
+        console.log(`MGCE: UI Sync Pulse [${e.detail.type}] landed. Re-rendering...`);
+        
+        // 1. Refetch data
+        const freshListings = await window.getCombinedListings();
+        
+        // 2. Refresh UI Sections
         if (document.getElementById('trending-slider')) {
-            renderTrendingSlider();
+            renderTrendingSlider(freshListings);
+        }
+        if (document.getElementById('featured-listings')) {
+            const featured = freshListings.filter(l => l.isFeatured).slice(0, 4);
+            document.getElementById('featured-listings').innerHTML = (await Promise.all(featured.map(l => renderListingCard(l)))).join('');
+            lucide.createIcons();
+        }
+        if (document.getElementById('shop-grid')) {
+            // Re-run the main shop rendering logic with fresh data
+            window.refreshShopUI(freshListings);
         }
         if (document.getElementById('stats-section')) {
             animateStats();
         }
+    });
 
-        // --- Elite Cloud Pulse ---
-        const pulse = document.getElementById('cloud-pulse');
-        if (pulse && window.MarketplaceDB.firestore) {
-            setTimeout(() => {
-                pulse.classList.remove('opacity-0');
-                pulse.classList.add('opacity-100');
-            }, 1500); // Sassy delayed reveal
-        }
-
-        // Check for Administrator Broadcasts
-        const broadcast = await window.MarketplaceDB.getBroadcast();
+    // Check for Administrator Broadcasts
+    const broadcast = await window.MarketplaceDB.getBroadcast();
         if (broadcast && broadcast.message) {
             const style = document.createElement('style');
             style.innerHTML = `
@@ -229,20 +246,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     const featuredListingsGrid = document.getElementById('featured-listings');
     if (featuredListingsGrid) {
         const featured = combinedListings.filter(l => l.isFeatured).slice(0, 4);
-        featuredListingsGrid.innerHTML = featured.map(l => renderListingCard(l)).join('');
+        featuredListingsGrid.innerHTML = (await Promise.all(featured.map(l => renderListingCard(l)))).join('');
         lucide.createIcons();
     }
 
-    // 3. Render Shop Items
-    const shopGrid = document.getElementById('shop-grid');
-    if (shopGrid) {
+    // 3. Shop Entry Point
+    window.refreshShopUI = async (allListings) => {
+        const shopGrid = document.getElementById('shop-grid');
+        if (!shopGrid) return;
+
         const urlParams = new URLSearchParams(window.location.search);
         const categoryFilter = urlParams.get('category');
         const typeFilter = urlParams.get('type');
         const activeFilter = urlParams.get('filter');
         const searchQuery = urlParams.get('search');
         
-        let filteredListings = combinedListings;
+        let filteredListings = allListings;
 
         // Auto-hide sold items after 1 hour on the public shop
         const now = Date.now();
@@ -253,21 +272,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (categoryFilter) {
             filteredListings = filteredListings.filter(l => l.category.includes(categoryFilter));
-            const categoryTitle = document.getElementById('category-title');
-            if (categoryTitle) categoryTitle.innerText = categoryFilter;
         }
         if (typeFilter) {
             filteredListings = filteredListings.filter(l => l.type === typeFilter);
         }
         if (activeFilter === 'favorites') {
-            const favResults = await Promise.all(combinedListings.map(async l => ({
+            const favResults = await Promise.all(allListings.map(async l => ({
                 id: l.id,
                 isFav: await window.MarketplaceDB.isFavorite(l.id)
             })));
             const favIds = favResults.filter(r => r.isFav).map(r => r.id);
             filteredListings = filteredListings.filter(l => favIds.includes(l.id));
-            const categoryTitle = document.getElementById('category-title');
-            if (categoryTitle) categoryTitle.innerText = "My Favorites";
         }
         if (searchQuery) {
             const q = searchQuery.toLowerCase();
@@ -276,17 +291,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 l.description.toLowerCase().includes(q) ||
                 l.category.toLowerCase().includes(q)
             );
-            const categoryTitle = document.getElementById('category-title');
-            if (categoryTitle) categoryTitle.innerText = `Search: ${searchQuery}`;
         }
 
-            shopGrid.innerHTML = filteredListings.length > 0 
-            ? await Promise.all(filteredListings.map(l => renderListingCard(l))).then(cards => cards.join(''))
+        shopGrid.innerHTML = filteredListings.length > 0 
+            ? (await Promise.all(filteredListings.map(l => renderListingCard(l)))).join('')
             : `<div class="col-span-full py-20 text-center">
                  <p class="text-slate-400 italic">No matches found for your search items in Maseno.</p>
                </div>`;
         lucide.createIcons();
-    }
+    };
+
+    // Initial Shop Render
+    await window.refreshShopUI(combinedListings);
 
     // 4. Render Product Details Page
     const detailsContainer = document.getElementById('details-container');
@@ -509,7 +525,7 @@ function isVideo(src) {
 }
 
 /**
- * Helper to render a listing card HTML
+ * Helper to render a listing card HTML (Luxe Redesign)
  */
 async function renderListingCard(listing) {
     const isFav = await window.MarketplaceDB.isFavorite(listing.id);
@@ -517,71 +533,60 @@ async function renderListingCard(listing) {
     const isVideo = media.startsWith('data:video');
 
     return `
-        <div class="group bg-white dark:bg-slate-900 rounded-[32px] overflow-hidden border border-border dark:border-slate-800 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 relative shadow-lg">
+        <div class="group luxe-card overflow-hidden relative">
             
-            <!-- Favorite Tag -->
+            <!-- Luxe Favorite Trigger -->
             <button onclick="toggleFavorite(event, '${listing.id}')" 
-                    class="absolute top-4 right-4 z-20 p-2.5 bg-white/80 dark:bg-navy/80 backdrop-blur-md rounded-2xl shadow-xl hover:scale-110 active:scale-90 transition-all">
-                <i data-lucide="heart" class="w-5 h-5 ${isFav ? 'fill-red-500 text-red-500' : 'text-slate-400'}"></i>
+                    class="absolute top-6 right-6 z-20 p-3 bg-white/40 dark:bg-navy/40 backdrop-blur-xl rounded-[20px] shadow-2xl hover:scale-110 active:scale-90 transition-all border border-white/20">
+                <i data-lucide="heart" class="w-5 h-5 ${isFav ? 'fill-red-500 text-red-500' : 'text-white'}"></i>
             </button>
 
-            <a href="details.html?id=${listing.id}" class="block aspect-4/5 overflow-hidden relative">
+            <a href="details.html?id=${listing.id}" class="block aspect-[4/5] overflow-hidden relative">
                 ${media === 'placeholder' ? `
-                    <div class="w-full h-full bg-slate-50 dark:bg-slate-900 border-b border-border dark:border-slate-800 flex items-center justify-center">
-                        <span class="text-primary/10 font-bold text-4xl">MGCE</span>
+                    <div class="w-full h-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center">
+                        <span class="text-navy/5 dark:text-white/5 font-black text-6xl italic tracking-tighter">LUXE</span>
                     </div>
                 ` : isVideo ? `
-                    <video src="${media}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" muted loop></video>
-                    <div class="absolute inset-0 bg-navy/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-                        <i data-lucide="play-circle" class="w-12 h-12 text-white/80"></i>
-                    </div>
+                    <video src="${media}" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" muted loop autoplay></video>
                 ` : `
-                    <img src="${media}" alt="${listing.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <img src="${media}" alt="${listing.title}" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
                 `}
                 
-                ${listing.isSoldOut ? `
-                    <div class="absolute inset-0 bg-navy/40 backdrop-blur-sm flex items-center justify-center z-10">
-                        <span class="bg-red-600 text-white px-4 py-1.5 rounded-full font-black uppercase tracking-widest text-[10px] shadow-lg">Sold Out</span>
-                    </div>
-                ` : ''}
-                
-                ${listing.type === 'service' ? `
-                    <div class="absolute bottom-4 left-4">
-                        <span class="bg-navy/80 backdrop-blur-md text-white px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border border-white/10">Campus Service</span>
-                    </div>
-                ` : ''}
+                <!-- Luxe Status Pills -->
+                <div class="absolute top-6 left-6 z-10 flex flex-col gap-2">
+                    ${listing.isSoldOut ? `
+                        <span class="status-pill status-pill-sold">Sold Out</span>
+                    ` : `
+                        <span class="status-pill ${listing.type === 'service' ? 'status-pill-pending' : 'status-pill-active'}">
+                            ${listing.type === 'service' ? 'Service' : 'Active'}
+                        </span>
+                    `}
+                    ${listing.isVerified ? `
+                        <span class="status-pill status-pill-elite">Elite Verified</span>
+                    ` : ''}
+                </div>
             </a>
 
-            <div class="p-4 space-y-3">
-                <div class="flex items-center gap-2 mb-1">
-                    <span class="text-[10px] font-bold text-primary uppercase tracking-tighter decoration-primary decoration-2 underline-offset-4">${listing.category}</span>
+            <div class="p-8 space-y-4">
+                <div class="space-y-1">
+                    <p class="text-[9px] font-black text-primary uppercase tracking-[0.3em]">${listing.category}</p>
+                    <h3 class="text-xl font-black text-navy dark:text-white group-hover:text-primary transition-colors truncate uppercase tracking-tighter leading-tight">
+                        ${listing.title}
+                    </h3>
                 </div>
-                <h3 class="font-bold text-navy dark:text-white group-hover:text-primary transition-colors truncate uppercase tracking-tight">
-                    ${listing.title}
-                </h3>
                 
-                <div class="flex items-center justify-between text-[10px]">
-                    <div class="flex flex-wrap items-center gap-1.5 text-slate-400 dark:text-slate-300">
-                        <i data-lucide="user" class="w-3 h-3"></i>
-                        <span class="font-black uppercase tracking-[0.05em]">${listing.sellerName}</span>
-                        ${listing.isVerified ? '<i data-lucide="verified" class="w-3.5 h-3.5 text-primary ml-0.5" title="Elite Verified Seller"></i>' : ''}
-                        ${listing.badge ? `<span class="bg-primary/20 text-primary px-1.5 py-0.5 rounded-md font-black text-[7px] uppercase tracking-widest border border-primary/20 shadow-sm">${listing.badge}</span>` : ''}
-                    </div>
-                    <div class="flex items-center gap-1 text-slate-400 dark:text-slate-300">
-                        <i data-lucide="map-pin" class="w-3 h-3 text-primary"></i>
-                        <span class="font-black uppercase tracking-[0.05em]">${listing.location || 'Maseno'}</span>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-between gap-2 pt-3 border-t border-border/50 dark:border-slate-800">
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-white/5">
                     <div class="flex flex-col">
-                        <span class="text-lg font-black text-navy dark:text-white leading-tight">KSh ${listing.price.toLocaleString()}</span>
-                        <span id="count-${listing.id}" class="text-[9px] font-black text-red-500/70 uppercase tracking-widest mt-0.5">
-                            ❤️ ${listing.heartCount || 0}
-                        </span>
+                        <span class="text-2xl font-black text-navy dark:text-white tracking-tighter">KSh ${listing.price.toLocaleString()}</span>
+                        <div class="flex items-center gap-2 mt-1">
+                            <i data-lucide="user" class="w-3 h-3 text-slate-400"></i>
+                            <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">${listing.sellerName}</span>
+                        </div>
                     </div>
-                    <a href="https://wa.me/${listing.sellerPhone}" target="_blank" class="p-2 bg-primary/10 text-primary rounded-lg hover:bg-primary hover:text-navy transition-all">
-                        <i data-lucide="message-circle" class="w-5 h-5"></i>
+                    
+                    <a href="https://wa.me/${listing.sellerPhone}" target="_blank" 
+                       class="p-4 bg-navy dark:bg-primary text-primary dark:text-navy rounded-[24px] shadow-xl hover:scale-110 transition-all">
+                        <i data-lucide="message-circle" class="w-6 h-6"></i>
                     </a>
                 </div>
             </div>
@@ -759,11 +764,15 @@ window.handleLogout = async () => {
 
 // --- Elite Pack 3: Hub & Search Logic ---
 
-async function renderTrendingSlider() {
+async function renderTrendingSlider(providedListings) {
     const container = document.getElementById('trending-slider');
     if (!container) return;
 
-    const trending = await window.MarketplaceDB.getTrendingListings(6);
+    // Use provided listings or fetch from DB
+    const trending = providedListings 
+        ? providedListings.sort((a, b) => (b.heartCount || 0) - (a.heartCount || 0)).slice(0, 6)
+        : await window.MarketplaceDB.getTrendingListings(6);
+
     if (!trending.length) {
         container.innerHTML = `<p class="text-slate-400 text-xs py-10 uppercase tracking-widest pl-4">No trending items yet. Add some hearts!</p>`;
         return;

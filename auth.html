@@ -231,7 +231,7 @@
                         if (this.mode === 'signup') {
                             if (!this.form.name) return alert("Please enter your name.");
                             
-                            // Check if user exists
+                            // Check if user exists (Local + Cloud)
                             const existing = await MarketplaceDB.getUser(this.form.phone);
                             if (existing) return alert("Phone already registered. Please log in.");
 
@@ -247,9 +247,8 @@
                             await MarketplaceDB.saveUser(newUser);
                             this.isNewBuyer = this.role === 'buyer';
                             this.showSuccess = true;
-                            // Pre-set mode to login for proceed or auto-login
                         } else {
-                            // Login
+                            // Login (Auto-checks Cloud if local missing)
                             const user = await MarketplaceDB.getUser(this.form.phone);
                             if (!user) return alert("User not found. Please Join Us first.");
                             

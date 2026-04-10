@@ -72,41 +72,46 @@
         }
       ">
 
-    <!-- Navbar -->
-    <header class="sticky top-0 z-50 w-full border-b border-border glass bg-white dark:bg-slate-900 shadow-sm">
-        <div class="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
-            <a href="/" class="flex items-center gap-3">
-                <img src="assets/images/mgce.jpeg" alt="MGCE Logo" class="h-10 w-auto logo-glow">
-                <div class="flex flex-col leading-tight border-l border-slate-200 dark:border-slate-700 pl-3">
-                    <span class="font-black text-navy dark:text-white text-lg tracking-tight uppercase">MGCE</span>
-                    <span class="text-[10px] text-accent font-bold uppercase tracking-tighter italic">Marketplace</span>
+    <!-- Luxe Navbar -->
+    <div class="fixed top-6 inset-x-0 z-50 px-4 md:px-8 pointer-events-none">
+        <header class="container mx-auto max-w-6xl nav-capsule flex items-center justify-between gap-4 pointer-events-auto animate-luxe-up">
+            <a href="/" class="flex items-center gap-3 pl-4 group">
+                <img src="assets/images/mgce.jpeg" alt="Logo" class="h-10 w-10 min-w-[40px] rounded-2xl shadow-lg shadow-black/20 group-hover:scale-110 transition-transform">
+                <div class="hidden sm:flex flex-col border-l border-white/10 pl-3">
+                    <span class="text-white font-black uppercase tracking-tighter text-lg leading-tight">MGCE</span>
+                    <span class="text-[8px] text-primary font-black uppercase tracking-[0.3em]">Elite Market</span>
                 </div>
             </a>
-            <nav class="flex items-center gap-6">
-                <a href="/shop" class="hidden lg:block text-sm font-medium hover:text-primary dark:text-slate-300">Shop</a>
-                <template x-if="profileRole === 'seller'">
-                    <a href="/sell" class="hidden lg:block text-sm font-medium hover:text-primary dark:text-slate-300">Post Item</a>
-                </template>
-                
-                <!-- Favorites Link -->
-                <a href="shop.html?filter=favorites" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-red-500 transition-colors" title="My Favorites">
-                    <i data-lucide="heart" class="w-5 h-5"></i>
-                </a>
+            
+            <nav class="flex items-center gap-1 md:gap-2 pr-2">
+                <div class="hidden md:flex items-center gap-1 mr-2 bg-white/5 p-1 rounded-2xl">
+                    <a href="shop.html" class="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Shop</a>
+                    <template x-if="profileRole === 'seller'">
+                        <a href="sell.html" class="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Post</a>
+                    </template>
+                </div>
 
-                <!-- Theme Toggle -->
-                <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors dark:text-primary">
-                    <i data-lucide="sun-moon" class="w-5 h-5"></i>
-                </button>
-
-                <a href="/account" class="p-2 bg-navy dark:bg-primary text-primary dark:text-navy rounded-full"><i data-lucide="user" class="w-5 h-5"></i></a>
-                <button x-show="profilePhone" @click="window.handleLogout()" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors" title="Log Out">
-                    <i data-lucide="log-out" class="w-5 h-5"></i>
-                </button>
-                <button @click="mobileMenu = !mobileMenu" class="md:hidden p-2 dark:text-white"><i data-lucide="menu" class="w-5 h-5"></i></button>
+                <!-- Icons Group -->
+                <div class="flex items-center gap-1">
+                    <a href="shop.html?filter=favorites" class="p-3 text-red-500 hover:bg-white/5 rounded-2xl transition-all" title="My Favorites">
+                        <i data-lucide="heart" class="w-5 h-5"></i>
+                    </a>
+                    <button onclick="toggleTheme()" class="p-3 text-primary hover:bg-white/5 rounded-2xl transition-all group" title="Switch Theme">
+                        <i data-lucide="sun-moon" class="w-5 h-5 group-hover:rotate-12 transition-transform"></i>
+                    </button>
+                    <a href="account.html" class="p-3 text-primary bg-white/10 rounded-2xl shadow-lg transition-all">
+                        <i data-lucide="user" class="w-5 h-5"></i>
+                    </a>
+                    <button x-show="profilePhone" @click="window.handleLogout()" class="p-3 text-red-400 hover:bg-red-500/10 rounded-2xl transition-all">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </button>
+                    <button @click="mobileMenu = !mobileMenu" class="md:hidden p-3 text-white">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                </div>
             </nav>
-        </div>
-
-    </header>
+        </header>
+    </div>
 
     <!-- Mobile Menu Overlay (Moved to Body Root for compatibility) -->
     <div x-show="mobileMenu" 
@@ -179,70 +184,106 @@
             </nav>
         </div>
 
-    <main class="py-12 dark:bg-navy min-h-screen">
-        <div class="container mx-auto px-4 max-w-6xl">
-            <!-- Profile Header -->
-            <div class="bg-white dark:bg-slate-900/50 p-8 rounded-4xl border border-border dark:border-slate-800 shadow-sm mb-12 flex flex-col md:flex-row items-center gap-8">
-                <div class="w-32 h-32 bg-navy text-primary rounded-[40px] flex items-center justify-center font-black text-5xl shadow-2xl relative group">
+    <main class="pt-32 pb-20 px-4 md:px-8 dark:bg-navy min-h-screen">
+        <div class="container mx-auto max-w-6xl space-y-12">
+            
+            <!-- Global Profile Luxe Card -->
+            <div class="luxe-card p-12 flex flex-col md:flex-row items-center gap-10 animate-luxe-up">
+                <div class="w-40 h-40 bg-navy text-primary rounded-[48px] flex items-center justify-center font-black text-6xl shadow-2xl relative group drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
                     <span x-text="profileName ? profileName.charAt(0) : ''"></span>
-                    <div class="absolute -bottom-2 -right-2 bg-primary text-navy p-2 rounded-2xl shadow-lg border-2 border-white dark:border-slate-900 group-hover:rotate-12 transition-transform">
-                        <i data-lucide="shield-check" class="w-5 h-5"></i>
+                    <div class="absolute -bottom-2 -right-2 bg-primary text-navy p-3 rounded-2xl shadow-lg border-4 border-white dark:border-navy group-hover:rotate-12 transition-transform">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
                     </div>
                 </div>
-                <div class="flex-1 text-center md:text-left space-y-4">
+                
+                <div class="flex-1 text-center md:text-left space-y-6">
                     <div>
-                        <span class="px-4 py-1.5 bg-primary/10 text-primary border border-primary/20 rounded-full text-[10px] font-black uppercase tracking-widest mb-3 inline-block">MGCE Elite Member</span>
-                        <h1 class="text-4xl md:text-5xl font-black text-navy dark:text-white uppercase tracking-tighter" x-text="profileName || 'Anonymous User'"></h1>
-                        <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-1" x-text="profilePhone"></p>
-                    </div>
-                    
-                    <div x-show="profileRole === 'seller'" class="inline-flex items-center gap-6 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-3xl" x-cloak>
-                        <div class="px-6 py-2 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-border dark:border-slate-700">
-                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total Shop Hearts</p>
-                            <p class="text-lg font-black text-red-500" id="seller-total-hearts">0</p>
+                        <div class="flex items-center justify-center md:justify-start gap-3 mb-4">
+                            <span class="px-5 py-2 bg-primary/10 text-primary border border-primary/20 rounded-full text-[10px] font-black uppercase tracking-widest">MGCE Elite Member</span>
+                            <span x-show="isVerified" class="px-5 py-2 bg-green-500/10 text-green-500 border border-green-500/20 rounded-full text-[10px] font-black uppercase tracking-widest">Global Verified</span>
                         </div>
-                        <div class="px-6 py-2 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-border dark:border-slate-700">
-                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Active Reach</p>
-                            <p class="text-lg font-black text-primary" id="seller-active-items">0</p>
-                        </div>
+                        <h1 class="text-4xl md:text-6xl font-black text-navy dark:text-white uppercase tracking-tighter leading-tight" x-text="profileName || 'Anonymous'"></h1>
+                        <p class="text-slate-400 font-bold uppercase tracking-[0.3em] text-[11px] mt-2" x-text="'ID: ' + profilePhone"></p>
                     </div>
-                </div>
-                <button @click="editProfile = true" class="px-6 py-3 bg-slate-50 dark:bg-slate-800 border border-border dark:border-slate-700 rounded-xl text-navy dark:text-white font-bold text-sm hover:bg-white dark:hover:bg-slate-700 transition-all flex items-center gap-2">
-                    <i data-lucide="edit-3" class="w-4 h-4"></i> <span x-text="profileRole === 'seller' ? 'Customize Shop' : 'Update Profile'"></span>
-                </button>
-            </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                <!-- Left: Listings/Favorites Management -->
-                <div class="lg:col-span-2 space-y-8">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-xl font-black text-navy dark:text-white uppercase tracking-tight" x-text="profileRole === 'seller' ? 'Active Inventory' : 'My Loved Items'">Active Inventory</h2>
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-4">
+                        <button @click="editProfile = true" class="px-8 py-4 bg-navy dark:bg-white text-white dark:text-navy rounded-[24px] font-black text-[11px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-black/20">
+                            Configure Profile
+                        </button>
                         <template x-if="profileRole === 'seller'">
-                            <a href="/sell" class="text-xs font-bold text-primary flex items-center gap-1 hover:underline">
-                                <i data-lucide="plus-circle" class="w-4 h-4"></i> New Entry
+                            <a href="sell.html" class="px-8 py-4 bg-primary text-navy rounded-[24px] font-black text-[11px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-primary/20">
+                                Post New Entry
                             </a>
                         </template>
                     </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <!-- Performance Sidebar -->
+                <aside class="lg:col-span-4 space-y-8 animate-luxe-up" style="animation-delay: 0.1s">
+                    <h2 class="text-[11px] font-black text-navy dark:text-white uppercase tracking-[0.4em] pl-2">Intelligence</h2>
                     
-                    <div id="my-listings-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Listings/Favorites will be injected by app.js -->
-                        <div class="animate-pulse bg-white dark:bg-slate-800 p-6 rounded-2xl border border-border dark:border-slate-700 h-24 w-full"></div>
+                    <div class="space-y-6">
+                        <!-- Revenue Card -->
+                        <div x-show="profileRole === 'seller'" class="luxe-card p-10 bg-navy dark:bg-white text-center space-y-3 relative overflow-hidden group">
+                            <div class="absolute -top-10 -right-10 w-40 h-40 bg-primary/5 rounded-full group-hover:scale-110 transition-transform"></div>
+                            <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em]">Market Value Relocated</p>
+                            <h3 class="text-3xl font-black text-white dark:text-navy tracking-tighter" x-text="'KSh ' + totalSales.toLocaleString()"></h3>
+                            <div class="pt-4 flex justify-center">
+                                <span class="px-4 py-1.5 bg-primary/20 text-primary rounded-full text-[9px] font-black uppercase">Platform Leader</span>
+                            </div>
+                        </div>
+
+                        <!-- Secondary Stats -->
+                        <div class="luxe-card p-10 space-y-8">
+                             <div class="flex items-center justify-between border-b border-slate-50 dark:border-white/5 pb-6">
+                                <div class="flex flex-col">
+                                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Active Influence</span>
+                                    <span class="text-2xl font-black text-navy dark:text-white" x-text="activeCount">0</span>
+                                </div>
+                                <div class="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-primary">
+                                    <i data-lucide="zap" class="w-5 h-5"></i>
+                                </div>
+                             </div>
+                             <div class="flex items-center justify-between">
+                                <div class="flex flex-col">
+                                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Hearts Received</span>
+                                    <span class="text-2xl font-black text-red-500" x-text="profileFavoritesCount">0</span>
+                                </div>
+                                <div class="w-12 h-12 bg-red-50 dark:bg-red-500/10 rounded-2xl flex items-center justify-center text-red-500">
+                                    <i data-lucide="heart" class="w-5 h-5"></i>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Inventory Main -->
+                <div class="lg:col-span-8 animate-luxe-up" style="animation-delay: 0.2s">
+                    <div class="luxe-card p-12 min-h-[600px] flex flex-col">
+                        <div class="flex items-center justify-between mb-10 border-b border-slate-50 dark:border-white/5 pb-8">
+                            <div>
+                                <h2 class="text-2xl font-black text-navy dark:text-white uppercase tracking-tighter" x-text="profileRole === 'seller' ? 'My Active Inventory' : 'Saved Collections'"></h2>
+                                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-black mt-1">Management Grid</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-slate-400 hover:text-navy transition-all">
+                                    <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="my-listings-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
+                            <!-- Injected by app.js -->
+                            <div class="animate-pulse bg-slate-50 dark:bg-slate-800/50 rounded-[40px] aspect-[4/5]"></div>
+                            <div class="animate-pulse bg-slate-50 dark:bg-slate-800/50 rounded-[40px] aspect-[4/5]"></div>
+                        </div>
                     </div>
                 </div>
-
-                <!-- Right: Quick Actions -->
-                <div class="space-y-6">
-                    <h2 class="text-xl font-black text-navy dark:text-white uppercase tracking-tight" x-text="profileRole === 'seller' ? 'Your Performance' : 'Shopping Activity'">Your Performance</h2>
-                    <div class="grid grid-cols-1 gap-4">
-                        <!-- Sales (Seller Only) -->
-                        <div x-show="profileRole === 'seller'" class="bg-navy dark:bg-primary p-8 rounded-3xl text-center space-y-2 relative overflow-hidden group">
-                            <div class="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -mr-10 -mt-10"></div>
-                            <p class="text-[10px] font-black text-slate-400 dark:text-navy/50 uppercase tracking-[0.2em]">Lifetime Earnings</p>
-                            <span class="text-4xl font-black text-white dark:text-navy" x-text="'KSh ' + totalSales.toLocaleString()">KSh 0</span>
-                        </div>
-                        
-                        <!-- Ads/Favorites Count -->
-                        <div class="bg-white dark:bg-slate-900/50 p-8 rounded-3xl border border-border dark:border-slate-800 text-center flex items-center justify-between">
+            </div>
+        </div>
+    </main>
                            <div class="text-left">
                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" x-text="profileRole === 'seller' ? 'Active Ads' : 'Saved Items'"></p>
                                <span class="text-2xl font-black text-navy dark:text-white" x-text="profileRole === 'seller' ? activeCount : profileFavoritesCount">0</span>

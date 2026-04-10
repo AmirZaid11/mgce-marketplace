@@ -120,14 +120,33 @@ class MarketplaceStorage {
         if (!phone) return null;
         const cleanPhone = phone.trim();
         await this._ensure();
-        return new Promise((resolve, reject) => {
+        
+        // 1. Local Lookup
+        let user = await new Promise((resolve, reject) => {
             const transaction = this.db.transaction(['users'], 'readonly');
             const store = transaction.objectStore('users');
             const request = store.get(cleanPhone);
-
             request.onsuccess = () => resolve(request.result);
             request.onerror = () => reject(request.error);
         });
+
+        // 2. Cloud Fallback (Critical for different devices)
+        if (!user && this.firestore) {
+            console.log(`MGCE Cloud: User [${cleanPhone}] not found locally. Searching global vaults...`);
+            try {
+                const doc = await this.firestore.collection('profiles').doc(cleanPhone).get();
+                if (doc.exists) {
+                    user = doc.data();
+                    console.log("MGCE Cloud: Remote user found and retrieved.");
+                    // Save locally for future speed
+                    await this.saveUser(user);
+                }
+            } catch (e) {
+                console.warn("MGCE Cloud: Remote fetch failed.", e.message);
+            }
+        }
+
+        return user;
     }
 
     async setCurrentSession(phone) {
@@ -280,6 +299,9 @@ class MarketplaceStorage {
                     store.delete(change.doc.id);
                 }
             });
+
+            // Notify UI that a global pulse was received
+            window.dispatchEvent(new CustomEvent('mgce-db-updated', { detail: { type: 'listings' } }));
         });
 
         // 2. Profiles Sync (Verification & Badges)
@@ -293,6 +315,8 @@ class MarketplaceStorage {
                     store.put(data);
                 }
             });
+
+            window.dispatchEvent(new CustomEvent('mgce-db-updated', { detail: { type: 'profiles' } }));
         });
     }
 

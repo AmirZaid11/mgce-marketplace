@@ -1,112 +1,95 @@
-/* Glassmorphism Effect */
+/* Luxe Dashboard Design Tokens */
+:root {
+    --radius-luxe: 40px;
+    --shadow-luxe: 0 40px 100px -20px rgba(15, 23, 42, 0.08); /* Atmospheric Depth */
+    --shadow-glow: 0 0 30px rgba(212, 175, 55, 0.2);
+}
+
+/* Floating Luxe Card Base */
+.luxe-card {
+    background: white;
+    border-radius: var(--radius-luxe);
+    box-shadow: var(--shadow-luxe);
+    border: 1px solid rgba(226, 232, 240, 0.4);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .luxe-card {
+    background: #0f172a;
+    border-color: rgba(255, 255, 255, 0.03);
+    box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.5);
+}
+
+.luxe-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 50px 120px -20px rgba(15, 23, 42, 0.12);
+}
+
+/* Elite Status Pills */
+.status-pill {
+    padding: 6px 14px;
+    border-radius: 9999px;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-pill-active { background: rgba(34, 197, 94, 0.05); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.1); }
+.status-pill-pending { background: rgba(245, 158, 11, 0.05); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.1); }
+.status-pill-sold { background: rgba(239, 68, 68, 0.05); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.1); }
+.status-pill-elite { background: rgba(107, 33, 168, 0.05); color: #6b21a8; border: 1px solid rgba(107, 33, 168, 0.2); }
+
+/* Navigation Capsule */
+.nav-capsule {
+    background: #0f172a;
+    border-radius: 32px;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.3);
+    padding: 8px 12px;
+    border: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+/* Glassmorphism Refined */
 .glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 }
 
-.glass-dark {
-  background: rgba(15, 23, 42, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-/* Branding Transitions */
-body {
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Logo Glow Effect */
-.logo-glow {
-    filter: drop-shadow(0 0 0px transparent);
-    transition: filter 0.3s ease;
-}
-
-.dark .logo-glow {
-    filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.4)); /* Gold Glow */
-    animation: pulse-glow 3s infinite;
-}
-
-@keyframes pulse-glow {
-    0%, 100% { filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3)); }
-    50% { filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.6)); }
-}
-
-/* Glassmorphism overrides for dark mode */
 .dark .glass {
-    background: rgba(15, 23, 42, 0.8) !important;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Custom Gradients */
-.bg-cream {
-  background-color: #fdfcf7;
-}
-
-.text-navy {
-  color: #0f172a;
-}
-
-.bg-navy {
-  background-color: #0f172a;
-}
-
-.text-gold {
-  color: #d4af37;
-}
-
-.bg-gold {
-  background-color: #d4af37;
-}
-
-/* Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
-}
-
-/* Transitions */
-.transition-all {
-  transition: all 0.3s ease;
-}
-
-/* Utility for aspect ratio if not in older tailwind */
-.aspect-4\/3 {
-  aspect-ratio: 4 / 3;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #d4af37;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #c19b2e;
+    background: rgba(15, 23, 42, 0.7) !important;
 }
 
 /* Typography */
 body {
-  font-family: 'Outfit', sans-serif;
-  scroll-behavior: smooth;
+    font-family: 'Outfit', sans-serif;
+    background-color: #f7f9fc;
+    color: #0f172a;
+    scroll-behavior: smooth;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark body {
+    background-color: #020617;
+    color: #f8fafc;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.dark ::-webkit-scrollbar-thumb { background: #334155; }
+::-webkit-scrollbar-thumb:hover { background: #d4af37; }
+
+/* Animations */
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-luxe-up {
+    animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
