@@ -72,20 +72,30 @@ window.toggleFavorite = async (e, id) => {
 let sessionTimeout;
 const resetSessionTimer = async () => {
     if (window.MarketplaceDB) {
+        // Only trigger session logic if a phone exists in LocalStorage (user is intended to be logged in)
+        const sessionPhone = localStorage.getItem('mgce_session_phone');
+        if (!sessionPhone) {
+            clearTimeout(sessionTimeout);
+            return; 
+        }
+
         // Hardening: Verify user still exists/not-banned on every activity
         const session = await window.MarketplaceDB.getCurrentSession();
-        if (!session && localStorage.getItem('mgce_session_phone')) {
+        if (!session) {
             alert("Your session has been terminated by an administrator.");
-            window.location.href = 'auth.html?mode=login';
+            window.location.href = '/auth?mode=login';
             return;
         }
 
         window.MarketplaceDB.refreshSession();
         clearTimeout(sessionTimeout);
         sessionTimeout = setTimeout(() => {
-            alert("Session expired due to 2 minutes of inactivity. Please sign in again.");
-            window.MarketplaceDB.clearSession();
-            window.location.href = 'auth.html?mode=login';
+            // Re-verify session right before alert to prevent "ghost" alerts
+            if (localStorage.getItem('mgce_session_phone')) {
+                alert("Session expired due to 2 minutes of inactivity. Please sign in again.");
+                window.MarketplaceDB.clearSession();
+                window.location.href = '/auth?mode=login';
+            }
         }, 120000); // 2 minutes
     }
 };
