@@ -1,0 +1,6 @@
+[build]
+  publish = "."
+
+[processing]
+  [processing.html]
+    pretty_urls = true

@@ -35,7 +35,7 @@
 
     <!-- Header / Logo -->
     <header class="p-8 flex justify-center">
-        <a href="index.html" class="flex flex-col items-center">
+        <a href="/" class="flex flex-col items-center">
             <img src="assets/images/mgce.jpeg" alt="Logo" class="h-16 w-auto logo-glow mb-4 rounded-2xl">
             <h1 class="text-3xl font-black text-navy dark:text-white uppercase tracking-tighter">MGCE <span class="text-primary italic">MARKET PLACE</span></h1>
         </a>
@@ -222,9 +222,9 @@
 
                 redirect(role) {
                     if (role === 'seller') {
-                        window.location.href = 'account.html';
+                        window.location.href = '/account';
                     } else {
-                        window.location.href = 'shop.html';
+                        window.location.href = '/shop';
                     }
                 }
             }

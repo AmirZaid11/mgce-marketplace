@@ -37,7 +37,7 @@
     <!-- Navbar -->
     <header class="sticky top-0 z-50 w-full border-b border-border glass bg-white/80 dark:bg-slate-900/80 shadow-sm">
         <div class="container mx-auto px-4 h-16 flex items-center justify-between gap-2">
-            <a href="index.html" class="flex items-center gap-2 min-w-0">
+            <a href="/" class="flex items-center gap-2 min-w-0">
                 <img src="assets/images/mgce.jpeg" alt="MGCE Logo" class="h-8 md:h-12 w-auto shrink-0 logo-glow">
                 <div class="flex flex-col leading-tight border-l border-slate-200 dark:border-slate-700 pl-2 overflow-hidden">
                     <span class="font-black text-navy dark:text-white text-sm md:text-lg tracking-tight uppercase truncate">MGCE</span>
@@ -46,9 +46,9 @@
             </a>
             
             <nav class="flex items-center gap-1 md:gap-4 shrink-0">
-                <a href="shop.html" class="hidden lg:block text-sm font-medium hover:text-primary dark:text-slate-300">Shop</a>
+                <a href="/shop" class="hidden lg:block text-sm font-medium hover:text-primary dark:text-slate-300">Shop</a>
                 <template x-if="user && user.role === 'seller'">
-                    <a href="sell.html" class="hidden lg:block text-sm font-medium hover:text-primary dark:text-slate-300">Post Item</a>
+                    <a href="/sell" class="hidden lg:block text-sm font-medium hover:text-primary dark:text-slate-300">Post Item</a>
                 </template>
                 
                 <!-- Favorites Link -->
@@ -61,7 +61,7 @@
                     <i data-lucide="sun-moon" class="w-5 h-5"></i>
                 </button>
 
-                <a href="account.html" class="p-2 bg-navy dark:bg-primary text-primary dark:text-navy rounded-full"><i data-lucide="user" class="w-5 h-5"></i></a>
+                <a href="/account" class="p-2 bg-navy dark:bg-primary text-primary dark:text-navy rounded-full"><i data-lucide="user" class="w-5 h-5"></i></a>
                 <button x-show="user" @click="window.handleLogout()" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors" title="Log Out">
                     <i data-lucide="log-out" class="w-5 h-5" style="width: 20px; height: 20px;"></i>
                 </button>
@@ -103,18 +103,18 @@
                 </form>
 
                 <div class="space-y-2 flex-1">
-                    <a href="index.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
+                    <a href="/" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
                         <i data-lucide="home" class="w-4 h-4"></i> Home
                     </a>
-                    <a href="shop.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
+                    <a href="/shop" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
                         <i data-lucide="shopping-bag" class="w-4 h-4"></i> Shop All
                     </a>
                     <template x-if="user && user.role === 'seller'">
-                        <a href="sell.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
+                        <a href="/sell" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
                             <i data-lucide="plus-circle" class="w-4 h-4"></i> Post Item
                         </a>
                     </template>
-                    <a href="account.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
+                    <a href="/account" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
                         <i data-lucide="user" class="w-4 h-4"></i> My Account
                     </a>
                     <template x-if="user">
@@ -135,9 +135,9 @@
         <div class="container mx-auto px-4 max-w-6xl">
             <!-- Breadcrumbs -->
             <nav class="flex text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-8 gap-2">
-                <a href="index.html" class="hover:text-primary">Home</a>
+                <a href="/" class="hover:text-primary">Home</a>
                 <span>/</span>
-                <a href="shop.html" class="hover:text-primary">Marketplace</a>
+                <a href="/shop" class="hover:text-primary">Marketplace</a>
                 <span>/</span>
                 <span class="text-navy dark:text-white">Details</span>
             </nav>

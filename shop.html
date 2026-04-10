@@ -36,7 +36,7 @@
     <!-- Navbar -->
     <header class="sticky top-0 z-50 w-full border-b border-border glass bg-white/80 dark:bg-navy/80">
         <div class="container mx-auto px-4 h-16 flex items-center justify-between gap-2">
-            <a href="index.html" class="flex items-center gap-2 min-w-0">
+            <a href="/" class="flex items-center gap-2 min-w-0">
                 <img src="assets/images/mgce.jpeg" alt="MGCE Logo" class="h-8 md:h-12 w-auto shrink-0 logo-glow">
                 <div class="flex flex-col leading-tight border-l border-slate-200 dark:border-slate-700 pl-2 overflow-hidden">
                     <span class="font-black text-navy dark:text-white text-sm md:text-lg tracking-tight uppercase truncate">MGCE</span>
@@ -45,13 +45,13 @@
             </a>
             
             <nav class="flex items-center gap-1 md:gap-4 shrink-0">
-                <a href="shop.html" class="hidden lg:block text-sm font-bold text-primary uppercase tracking-widest">Shop</a>
+                <a href="/shop" class="hidden lg:block text-sm font-bold text-primary uppercase tracking-widest">Shop</a>
                 <template x-if="user && user.role === 'seller'">
-                    <a href="sell.html" class="hidden lg:block text-sm font-bold text-navy dark:text-slate-300 uppercase tracking-widest">Post</a>
+                    <a href="/sell" class="hidden lg:block text-sm font-bold text-navy dark:text-slate-300 uppercase tracking-widest">Post</a>
                 </template>
                 
                 <!-- Favorites Link -->
-                <a href="shop.html?filter=favorites" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-red-500 transition-colors" title="My Favorites">
+                <a href="/shop?filter=favorites" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-red-500 transition-colors" title="My Favorites">
                     <i data-lucide="heart" class="w-5 h-5"></i>
                 </a>
 
@@ -60,7 +60,7 @@
                     <i data-lucide="sun-moon" class="w-5 h-5"></i>
                 </button>
 
-                <a href="account.html" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-navy dark:text-slate-300"><i data-lucide="user" class="w-5 h-5"></i></a>
+                <a href="/account" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-navy dark:text-slate-300"><i data-lucide="user" class="w-5 h-5"></i></a>
                 <button x-show="user" @click="window.handleLogout()" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors" title="Log Out">
                     <i data-lucide="log-out" class="w-5 h-5"></i>
                 </button>
@@ -102,18 +102,18 @@
                 </form>
 
                 <div class="space-y-2 flex-1">
-                    <a href="index.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
+                    <a href="/" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
                         <i data-lucide="home" class="w-4 h-4"></i> Home
                     </a>
-                    <a href="shop.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl bg-primary/10 text-primary font-black uppercase tracking-widest text-xs transition-all border border-primary/20">
+                    <a href="/shop" class="flex items-center gap-4 py-4 px-5 rounded-2xl bg-primary/10 text-primary font-black uppercase tracking-widest text-xs transition-all border border-primary/20">
                         <i data-lucide="shopping-bag" class="w-4 h-4"></i> Shop All
                     </a>
                     <template x-if="user && user.role === 'seller'">
-                        <a href="sell.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
+                        <a href="/sell" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
                             <i data-lucide="plus-circle" class="w-4 h-4"></i> Post Item
                         </a>
                     </template>
-                    <a href="account.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
+                    <a href="/account" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
                         <i data-lucide="user" class="w-4 h-4"></i> My Account
                     </a>
                     <template x-if="user">
@@ -140,24 +140,24 @@
                 </div>
                 
                 <div class="flex flex-wrap items-center gap-3" x-data="{ user: null }" x-init="user = await window.MarketplaceDB.getCurrentSession()">
-                    <button @click="window.location.href='shop.html'" 
+                    <button @click="window.location.href='/shop'" 
                             :class="filter === 'all' ? 'bg-navy dark:bg-primary text-primary dark:text-navy border-navy dark:border-primary' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-transparent hover:border-slate-200 dark:hover:border-slate-700'" 
                             class="px-6 py-2 rounded-full font-black text-[10px] uppercase tracking-widest transition-all shadow-sm border-2">All Feed</button>
                     
-                    <button @click="window.location.href='shop.html?type=product'" 
+                    <button @click="window.location.href='/shop?type=product'" 
                             :class="filter === 'product' ? 'bg-navy dark:bg-primary text-primary dark:text-navy border-navy dark:border-primary' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-transparent hover:border-slate-200 dark:hover:border-slate-700'" 
                             class="px-6 py-2 rounded-full font-black text-[10px] uppercase tracking-widest transition-all shadow-sm border-2 text-center flex items-center gap-2">
                         <i data-lucide="package" class="w-3 h-3"></i> Products
                     </button>
                     
-                    <button @click="window.location.href='shop.html?type=service'" 
+                    <button @click="window.location.href='/shop?type=service'" 
                             :class="filter === 'service' ? 'bg-navy dark:bg-primary text-primary dark:text-navy border-navy dark:border-primary' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-transparent hover:border-slate-200 dark:hover:border-slate-700'" 
                             class="px-6 py-2 rounded-full font-black text-[10px] uppercase tracking-widest transition-all shadow-sm border-2 text-center flex items-center gap-2">
                         <i data-lucide="sparkles" class="w-3 h-3"></i> Services
                     </button>
 
                     <template x-if="user">
-                        <button @click="window.location.href='shop.html?filter=favorites'" 
+                        <button @click="window.location.href='/shop?filter=favorites'" 
                                 :class="filter === 'favorites' ? 'bg-primary text-navy border-primary' : 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20'" 
                                 class="px-6 py-2 rounded-full font-black text-[10px] uppercase tracking-widest transition-all shadow-sm border-2 text-center flex items-center gap-2">
                             <i data-lucide="heart" class="w-3 h-3"></i> My Favorites

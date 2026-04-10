@@ -68,7 +68,7 @@
     <!-- Navbar -->
     <header class="sticky top-0 z-50 w-full border-b border-border glass bg-white dark:bg-slate-900 shadow-sm">
         <div class="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
-            <a href="index.html" class="flex items-center gap-3">
+            <a href="/" class="flex items-center gap-3">
                 <img src="assets/images/mgce.jpeg" alt="MGCE Logo" class="h-10 w-auto logo-glow">
                 <div class="flex flex-col leading-tight border-l border-slate-200 dark:border-slate-700 pl-3">
                     <span class="font-black text-navy dark:text-white text-lg tracking-tight uppercase">MGCE</span>
@@ -76,9 +76,9 @@
                 </div>
             </a>
             <nav class="flex items-center gap-6">
-                <a href="shop.html" class="hidden lg:block text-sm font-medium hover:text-primary dark:text-slate-300">Shop</a>
+                <a href="/shop" class="hidden lg:block text-sm font-medium hover:text-primary dark:text-slate-300">Shop</a>
                 <template x-if="profileRole === 'seller'">
-                    <a href="sell.html" class="hidden lg:block text-sm font-medium hover:text-primary dark:text-slate-300">Post Item</a>
+                    <a href="/sell" class="hidden lg:block text-sm font-medium hover:text-primary dark:text-slate-300">Post Item</a>
                 </template>
                 
                 <!-- Favorites Link -->
@@ -91,7 +91,7 @@
                     <i data-lucide="sun-moon" class="w-5 h-5"></i>
                 </button>
 
-                <a href="account.html" class="p-2 bg-navy dark:bg-primary text-primary dark:text-navy rounded-full"><i data-lucide="user" class="w-5 h-5"></i></a>
+                <a href="/account" class="p-2 bg-navy dark:bg-primary text-primary dark:text-navy rounded-full"><i data-lucide="user" class="w-5 h-5"></i></a>
                 <button x-show="profilePhone" @click="window.handleLogout()" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors" title="Log Out">
                     <i data-lucide="log-out" class="w-5 h-5"></i>
                 </button>
@@ -133,18 +133,18 @@
                 </form>
 
                 <div class="space-y-2 flex-1">
-                    <a href="index.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
+                    <a href="/" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
                         <i data-lucide="home" class="w-4 h-4"></i> Home
                     </a>
-                    <a href="shop.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
+                    <a href="/shop" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
                         <i data-lucide="shopping-bag" class="w-4 h-4"></i> Shop All
                     </a>
                     <template x-if="profileRole === 'seller'">
-                        <a href="sell.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
+                        <a href="/sell" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
                             <i data-lucide="plus-circle" class="w-4 h-4"></i> Post Item
                         </a>
                     </template>
-                    <a href="account.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl bg-primary/10 text-primary font-black uppercase tracking-widest text-xs transition-all border border-primary/20">
+                    <a href="/account" class="flex items-center gap-4 py-4 px-5 rounded-2xl bg-primary/10 text-primary font-black uppercase tracking-widest text-xs transition-all border border-primary/20">
                         <i data-lucide="user" class="w-4 h-4"></i> My Account
                     </a>
                     
@@ -200,7 +200,7 @@
                     <div class="flex items-center justify-between">
                         <h2 class="text-xl font-black text-navy dark:text-white uppercase tracking-tight" x-text="profileRole === 'seller' ? 'Active Inventory' : 'My Loved Items'">Active Inventory</h2>
                         <template x-if="profileRole === 'seller'">
-                            <a href="sell.html" class="text-xs font-bold text-primary flex items-center gap-1 hover:underline">
+                            <a href="/sell" class="text-xs font-bold text-primary flex items-center gap-1 hover:underline">
                                 <i data-lucide="plus-circle" class="w-4 h-4"></i> New Entry
                             </a>
                         </template>

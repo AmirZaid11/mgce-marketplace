@@ -35,17 +35,17 @@
         await window.MarketplaceDB.init();
         user = await window.MarketplaceDB.getCurrentSession();
         if (!user) {
-            window.location.href = 'auth.html?mode=login';
+            window.location.href = '/auth?mode=login';
         } else if (user.role === 'buyer') {
             alert('ACCESS DENIED: Your account is registered as a Buyer. Please create a Seller account to post items.');
-            window.location.href = 'shop.html';
+            window.location.href = '/shop';
         }
       ">
 
     <!-- Navbar -->
     <header class="sticky top-0 z-50 w-full border-b border-border glass bg-white/80 dark:bg-navy/80">
         <div class="container mx-auto px-4 h-16 flex items-center justify-between gap-2">
-            <a href="index.html" class="flex items-center gap-2 min-w-0">
+            <a href="/" class="flex items-center gap-2 min-w-0">
                 <img src="assets/images/mgce.jpeg" alt="MGCE Logo" class="h-8 md:h-12 w-auto shrink-0 logo-glow">
                 <div class="flex flex-col leading-tight border-l border-slate-200 dark:border-slate-700 pl-2 overflow-hidden">
                     <span class="font-black text-navy dark:text-white text-sm md:text-lg tracking-tight uppercase truncate">MGCE</span>
@@ -54,15 +54,15 @@
             </a>
             
             <nav class="flex items-center gap-1 md:gap-4 shrink-0">
-                <a href="shop.html" class="hidden lg:block text-sm font-bold hover:text-primary transition-colors dark:text-slate-300">Shop</a>
-                <a href="sell.html" class="hidden lg:block text-sm font-bold text-primary">Sell</a>
+                <a href="/shop" class="hidden lg:block text-sm font-bold hover:text-primary transition-colors dark:text-slate-300">Shop</a>
+                <a href="/sell" class="hidden lg:block text-sm font-bold text-primary">Sell</a>
                 
                 <!-- Theme Toggle -->
                 <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-navy dark:text-primary">
                     <i data-lucide="sun-moon" class="w-5 h-5"></i>
                 </button>
 
-                <a href="account.html" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-navy dark:text-slate-300"><i data-lucide="user" class="w-5 h-5"></i></a>
+                <a href="/account" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-navy dark:text-slate-300"><i data-lucide="user" class="w-5 h-5"></i></a>
                 <button @click="mobileMenu = !mobileMenu" class="md:hidden p-2 text-navy dark:text-white"><i data-lucide="menu" class="w-5 h-5"></i></button>
             </nav>
         </div>
@@ -101,16 +101,16 @@
                 </form>
 
                 <div class="space-y-2 flex-1">
-                    <a href="index.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
+                    <a href="/" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
                         <i data-lucide="home" class="w-4 h-4"></i> Home
                     </a>
-                    <a href="shop.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
+                    <a href="/shop" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
                         <i data-lucide="shopping-bag" class="w-4 h-4"></i> Shop
                     </a>
-                    <a href="sell.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl bg-primary/10 text-primary font-black uppercase tracking-widest text-xs transition-all border border-primary/20">
+                    <a href="/sell" class="flex items-center gap-4 py-4 px-5 rounded-2xl bg-primary/10 text-primary font-black uppercase tracking-widest text-xs transition-all border border-primary/20">
                         <i data-lucide="plus-circle" class="w-4 h-4"></i> Post Item
                     </a>
-                    <a href="account.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
+                    <a href="/account" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
                         <i data-lucide="user" class="w-4 h-4"></i> My Account
                     </a>
                 </div>
@@ -317,7 +317,7 @@
                 
                 if (!session || session.role !== 'seller') {
                     alert("Unauthorized: Only sellers can post listings.");
-                    window.location.href = "auth.html";
+                    window.location.href = "/auth";
                     return;
                 }
 
@@ -354,7 +354,7 @@
 
                 await window.MarketplaceDB.saveListing(listing);
                 alert("Listing created and saved locally to your Maseno device!");
-                window.location.href = "shop.html";
+                window.location.href = "/shop";
 
             } catch (err) {
                 console.error("Submission error:", err);
