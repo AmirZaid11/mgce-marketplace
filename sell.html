@@ -15,6 +15,7 @@
                         primary: '#d4af37', // Gold
                         accent: '#6b21a8',  // Purple from Logo
                         navy: '#0f172a',
+                        'navy-dark': '#020617',
                         cream: '#fdfcf7',
                         border: '#e2e8f0',
                     }
@@ -58,8 +59,9 @@
                 <a href="/sell" class="hidden lg:block text-sm font-bold text-primary">Sell</a>
                 
                 <!-- Theme Toggle -->
-                <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-navy dark:text-primary">
-                    <i data-lucide="sun-moon" class="w-5 h-5"></i>
+                <!-- Theme Toggle -->
+                <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all text-accent group" title="Switch Theme">
+                    <i data-lucide="sun-moon" class="w-5 h-5 group-hover:rotate-12 transition-transform"></i>
                 </button>
 
                 <a href="/account" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-navy dark:text-slate-300"><i data-lucide="user" class="w-5 h-5"></i></a>
