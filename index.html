@@ -25,6 +25,12 @@
     </script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Firebase Global Elite -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="assets/js/firebase-config.js"></script>
+
     <link rel="stylesheet" href="assets/css/style.css">
     <style> [x-cloak] { display: none !important; } </style>
 </head>
@@ -164,6 +170,49 @@
             </div>
         </section>
 
+        <!-- Trending Now (The Elite Pulse) -->
+        <section class="py-12 bg-white dark:bg-navy-dark overflow-hidden" x-data="{ currentSlide: 0 }">
+            <div class="container mx-auto px-4">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-xl font-black text-navy dark:text-white uppercase tracking-widest border-l-4 border-primary pl-4">Trending Now</h2>
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Most loved items on campus</p>
+                    </div>
+                    <a href="shop.html" class="text-[10px] font-black text-primary uppercase tracking-widest hover:underline decoration-2 underline-offset-4">Explore All</a>
+                </div>
+
+                <div class="relative group">
+                    <div id="trending-slider" class="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-6 no-scrollbar transition-all duration-500">
+                        <!-- Trending items dynamically injected by app.js -->
+                        <div class="flex-shrink-0 w-72 h-96 bg-slate-50 dark:bg-navy animate-pulse rounded-[32px] snap-center border border-border/20"></div>
+                        <div class="flex-shrink-0 w-72 h-96 bg-slate-50 dark:bg-navy animate-pulse rounded-[32px] snap-center border border-border/20"></div>
+                        <div class="flex-shrink-0 w-72 h-96 bg-slate-50 dark:bg-navy animate-pulse rounded-[32px] snap-center border border-border/20"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Luxe Stats (Campus Pulse) -->
+        <section class="py-12 bg-navy text-primary overflow-hidden relative shadow-2xl" id="stats-section">
+            <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary via-transparent to-transparent"></div>
+            <div class="container mx-auto px-4 relative z-10">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                    <div class="space-y-1">
+                        <span class="text-xs font-black uppercase tracking-widest text-slate-500">Total Hearts</span>
+                        <p class="text-4xl font-black tracking-tighter" id="stat-hearts">0</p>
+                    </div>
+                    <div class="space-y-1 border-y md:border-y-0 md:border-x border-primary/20 py-8 md:py-0">
+                        <span class="text-xs font-black uppercase tracking-widest text-slate-500">Verified Sellers</span>
+                        <p class="text-4xl font-black tracking-tighter" id="stat-users">0</p>
+                    </div>
+                    <div class="space-y-1">
+                        <span class="text-xs font-black uppercase tracking-widest text-slate-500">Active Listings</span>
+                        <p class="text-4xl font-black tracking-tighter" id="stat-items">0</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Categories -->
         <section class="py-16 bg-white dark:bg-navy border-y border-border/50 dark:border-slate-800">
             <div class="container mx-auto px-4">
@@ -193,8 +242,15 @@
         </section>
     </main>
 
-    <footer class="bg-navy text-white pt-20 pb-8 mt-20">
+    <footer class="bg-navy text-white pt-20 pb-8 mt-20 relative overflow-hidden">
+        <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
         <div class="container mx-auto px-4 text-center space-y-4">
+            <!-- Cloud Pulse -->
+            <div id="cloud-pulse" class="flex items-center justify-center gap-2 mb-6 transition-opacity duration-1000 opacity-0">
+                <div class="w-2 h-2 bg-primary rounded-full animate-ping"></div>
+                <span class="text-[8px] font-black text-primary uppercase tracking-[0.4em]">Elite Cloud Sync Active</span>
+            </div>
+
             <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em]">MGCE | GIRLS SOCIETY</p>
             <p class="text-[10px] text-slate-600 font-bold uppercase tracking-widest">© 2026 Maseno Girl Child Empowerment Marketplace</p>
             <button onclick="window.goToAdmin()" class="opacity-30 hover:opacity-100 transition-opacity text-slate-400 hover:text-primary mt-4 block mx-auto">

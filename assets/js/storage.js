@@ -9,6 +9,7 @@ const DB_VERSION = 4;
 class MarketplaceStorage {
     constructor() {
         this.db = null;
+        this.firestore = null;
         this._initPromise = null;
     }
 
@@ -57,8 +58,23 @@ class MarketplaceStorage {
                 }
             };
 
-            request.onsuccess = (event) => {
+            request.onsuccess = async (event) => {
                 this.db = event.target.result;
+                
+                // Initialize Firebase Cloud Power
+                if (window.firebase && window._mgceFirebaseConfig) {
+                    try {
+                        const app = firebase.initializeApp(window._mgceFirebaseConfig);
+                        this.firestore = firebase.firestore();
+                        console.log("MGCE: Elite Cloud Sync Initialized.");
+                        
+                        // Start Background Sync
+                        this.syncCloudData();
+                    } catch (e) {
+                        console.warn("MGCE: Cloud Sync bypass (Local Only Mode)", e.message);
+                    }
+                }
+                
                 resolve();
             };
 
@@ -82,7 +98,20 @@ class MarketplaceStorage {
                 createdAt: user.createdAt || Date.now()
             });
 
-            request.onsuccess = () => resolve();
+            request.onsuccess = async () => {
+                // Cloud Sync Profile
+                if (this.firestore) {
+                    try {
+                        await this.firestore.collection('profiles').doc(user.phone).set({
+                            ...user,
+                            lastSync: firebase.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+                    } catch (e) {
+                        console.warn("MGCE: Profile Cloud sync failed.", e.message);
+                    }
+                }
+                resolve();
+            };
             request.onerror = () => reject(request.error);
         });
     }
@@ -213,6 +242,13 @@ class MarketplaceStorage {
             if (listing) {
                 listing.heartCount = Math.max(0, (listing.heartCount || 0) + (isAdded ? 1 : -1));
                 await this.saveListing(listing);
+                
+                // Cloud Sync Heart Rate
+                if (this.firestore) {
+                    await this.firestore.collection('listings').doc(listingId).update({
+                        heartCount: listing.heartCount
+                    }).catch(e => console.warn("MGCE: Heart Cloud sync lag."));
+                }
             }
         } catch (e) {
             console.warn("MGCE: Could not update listing heart count:", e.message);
@@ -224,6 +260,83 @@ class MarketplaceStorage {
     async getListingHeartCount(id) {
         const listing = await this.getListing(id);
         return listing ? (listing.heartCount || 0) : 0;
+    }
+
+    // --- Elite Cloud Sync Engine ---
+    async syncCloudData() {
+        if (!this.firestore) return;
+
+        // 1. Listings Listener
+        this.firestore.collection('listings').onSnapshot(async (snapshot) => {
+            console.log(`MGCE Cloud: Received ${snapshot.size} items.`);
+            const transaction = this.db.transaction(['listings'], 'readwrite');
+            const store = transaction.objectStore('listings');
+            
+            snapshot.docChanges().forEach((change) => {
+                const data = change.doc.data();
+                if (change.type === "added" || change.type === "modified") {
+                    store.put(data);
+                } else if (change.type === "removed") {
+                    store.delete(change.doc.id);
+                }
+            });
+        });
+
+        // 2. Profiles Sync (Verification & Badges)
+        this.firestore.collection('profiles').onSnapshot(async (snapshot) => {
+            const transaction = this.db.transaction(['users'], 'readwrite');
+            const store = transaction.objectStore('users');
+            
+            snapshot.docChanges().forEach((change) => {
+                const data = change.doc.data();
+                if (change.type === "added" || change.type === "modified") {
+                    store.put(data);
+                }
+            });
+        });
+    }
+
+    async getTrendingListings(limit = 6) {
+        let all = await this.getAllListings();
+        // Sort by hearts descending
+        return all.sort((a, b) => (b.heartCount || 0) - (a.heartCount || 0)).slice(0, limit);
+    }
+
+    async getGlobalStats() {
+        const all = await this.getAllListings();
+        const profiles = await new Promise((resolve) => {
+            const transaction = this.db.transaction(['users'], 'readonly');
+            const store = transaction.objectStore('users');
+            const request = store.getAll();
+            request.onsuccess = () => resolve(request.result);
+        });
+
+        const totalHearts = all.reduce((sum, item) => sum + (item.heartCount || 0), 0);
+        
+        return {
+            totalItems: all.length,
+            totalUsers: profiles.length,
+            totalHearts: totalHearts
+        };
+    }
+
+    async getSellerStats(phone) {
+        const all = await this.getAllListings();
+        const sellerItems = all.filter(l => l.sellerPhone === phone);
+        const totalHearts = sellerItems.reduce((sum, l) => sum + (l.heartCount || 0), 0);
+
+        return {
+            items: sellerItems,
+            totalHearts: totalHearts
+        };
+    }
+
+    async toggleListingSold(id) {
+        const item = await this.getListing(id);
+        if (!item) return;
+        item.isSold = !item.isSold;
+        item.soldAt = item.isSold ? Date.now() : null;
+        return await this.saveListing(item);
     }
 
     async isFavorite(listingId) {
@@ -276,7 +389,20 @@ class MarketplaceStorage {
             const store = transaction.objectStore('listings');
             const request = store.put(listing);
 
-            request.onsuccess = () => resolve();
+            request.onsuccess = async () => {
+                // Cloud Push
+                if (this.firestore) {
+                    try {
+                        await this.firestore.collection('listings').doc(listing.id).set({
+                            ...listing,
+                            lastSync: firebase.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+                    } catch (e) {
+                        console.warn("MGCE: Listing Cloud push failed.", e.message);
+                    }
+                }
+                resolve();
+            };
             request.onerror = () => reject(request.error);
         });
     }

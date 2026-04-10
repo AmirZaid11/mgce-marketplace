@@ -25,6 +25,12 @@
     </script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Firebase Global Elite -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="assets/js/firebase-config.js"></script>
+
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body class="bg-white dark:bg-navy text-navy selection:bg-primary/30" 
@@ -98,7 +104,8 @@
             <div class="p-6 flex-1 flex flex-col bg-white dark:bg-slate-900">
                 <!-- Mobile Search -->
                 <form onsubmit="window.handleNavbarSearch(event)" class="mb-8 relative">
-                    <input type="text" placeholder="Search Maseno..." class="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-border dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-primary dark:text-white text-sm">
+                    <input type="text" placeholder="Search Maseno..." oninput="window.handleLiveSearch(event)"
+                           class="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-border dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-primary dark:text-white text-sm">
                     <i data-lucide="search" class="absolute left-3 top-3.5 w-4 h-4 text-slate-400"></i>
                 </form>
 
@@ -138,6 +145,13 @@
                 <div>
                     <h1 class="text-4xl font-black text-navy dark:text-white uppercase tracking-tight mb-2" id="category-title">Marketplace Feed</h1>
                     <p class="text-slate-500 dark:text-slate-400 text-sm">Everything for sale and hire within Maseno University.</p>
+                </div>
+                
+                <div class="flex-1 w-full max-w-md relative group">
+                    <input type="text" placeholder="Search products or services..." 
+                           oninput="window.handleLiveSearch(event)"
+                           class="w-full pl-12 pr-6 py-4 bg-slate-50 dark:bg-slate-800/50 border border-border dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-primary transition-all text-navy dark:text-white text-sm shadow-sm group-hover:border-primary/30">
+                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors"></i>
                 </div>
                 
                 <div class="flex flex-wrap items-center gap-3" x-data="{ user: null }" x-init="user = await window.MarketplaceDB.getCurrentSession()">

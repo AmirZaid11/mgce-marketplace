@@ -25,6 +25,12 @@
     </script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Firebase Global Elite -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="assets/js/firebase-config.js"></script>
+
     <link rel="stylesheet" href="assets/css/style.css">
     <style> [x-cloak] { display: none !important; } </style>
 </head>
@@ -177,5 +183,51 @@
     <script src="assets/js/data.js"></script>
     <script src="assets/js/app.js"></script>
     <script>lucide.createIcons();</script>
+
+    <!-- Professional Contact Modal -->
+    <div x-data="{ open: false, listing: null, message: '' }" 
+         x-show="open" 
+         @open-contact.window="open = true; listing = $event.detail.listing; message = `Hi ${$event.detail.listing.sellerName}, I'm interested in your ${$event.detail.listing.title} on MGCE Marketplace.` "
+         class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" x-cloak>
+        <div class="absolute inset-0 bg-navy/80 backdrop-blur-md" @click="open = false"></div>
+        
+        <div class="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[40px] border border-primary/20 shadow-2xl overflow-hidden animate-fade-in-up">
+            <div class="p-8 space-y-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Direct Inquiry</span>
+                        <h2 class="text-2xl font-black text-navy dark:text-white uppercase tracking-tighter">Contact Seller</h2>
+                    </div>
+                    <button @click="open = false" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-2xl text-slate-500 hover:text-navy dark:hover:text-white transition-all">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-border dark:border-slate-800">
+                    <div class="w-12 h-12 bg-navy text-primary rounded-2xl flex items-center justify-center font-black text-xl uppercase">
+                        <span x-text="listing ? listing.sellerName.charAt(0) : ''"></span>
+                    </div>
+                    <div>
+                        <p class="text-xs font-black text-navy dark:text-white uppercase tracking-tight" x-text="listing ? listing.sellerName : ''"></p>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest" x-text="listing ? listing.title : ''"></p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Your Professional Message</label>
+                    <textarea x-model="message" rows="4" 
+                              class="w-full p-6 bg-white dark:bg-slate-900 border border-border dark:border-slate-800 rounded-[32px] outline-none focus:ring-2 focus:ring-primary transition-all text-sm text-navy dark:text-white leading-relaxed resize-none"></textarea>
+                </div>
+
+                <button @click="window.open(`https://wa.me/${listing.sellerPhone}?text=${encodeURIComponent(message)}`, '_blank'); open = false" 
+                        class="w-full py-6 bg-navy dark:bg-primary text-primary dark:text-navy rounded-[32px] font-black text-xl flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-navy/20 dark:shadow-primary/10 uppercase tracking-widest">
+                    <i data-lucide="message-circle" class="w-6 h-6"></i>
+                    Send to WhatsApp
+                </button>
+                
+                <p class="text-[9px] text-center text-slate-400 font-bold uppercase tracking-widest">Powered by MGCE Girls Society</p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -135,6 +135,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             resetSessionTimer();
         }
 
+        // --- Elite Pack 3: Hub Initializers ---
+        if (document.getElementById('trending-slider')) {
+            renderTrendingSlider();
+        }
+        if (document.getElementById('stats-section')) {
+            animateStats();
+        }
+
+        // --- Elite Cloud Pulse ---
+        const pulse = document.getElementById('cloud-pulse');
+        if (pulse && window.MarketplaceDB.firestore) {
+            setTimeout(() => {
+                pulse.classList.remove('opacity-0');
+                pulse.classList.add('opacity-100');
+            }, 1500); // Sassy delayed reveal
+        }
+
         // Check for Administrator Broadcasts
         const broadcast = await window.MarketplaceDB.getBroadcast();
         if (broadcast && broadcast.message) {
@@ -327,35 +344,47 @@ document.addEventListener('DOMContentLoaded', async () => {
         const localListings = await window.MarketplaceDB.getAllListings();
         
         if (session.role === 'seller') {
-            const myItems = localListings.filter(l => l.sellerPhone === session.phone);
+            // Fetch Sassy Stats
+            const stats = await window.MarketplaceDB.getSellerStats(session.phone);
+            const heartsEl = document.getElementById('seller-total-hearts');
+            const itemsEl = document.getElementById('seller-active-items');
+            if (heartsEl) heartsEl.innerText = stats.totalHearts.toLocaleString();
+            if (itemsEl) itemsEl.innerText = stats.items.length.toLocaleString();
+
+            const myItems = stats.items;
             if (myItems.length > 0) {
                 myListingsGrid.innerHTML = await Promise.all(myItems.map(async l => {
-                    const hearts = await window.MarketplaceDB.getListingHeartCount(l.id);
                     return `
-                        <div class="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-border dark:border-slate-800 flex items-center justify-between gap-4">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center font-bold text-primary shadow-sm relative">
+                        <div class="p-5 bg-white dark:bg-slate-900 border border-border dark:border-slate-800 rounded-[32px] flex items-center justify-between gap-4 group transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                            <div class="flex items-center gap-5">
+                                <div class="w-14 h-14 bg-navy text-primary rounded-2xl flex items-center justify-center font-black text-2xl shadow-xl relative">
                                     ${l.title.charAt(0)}
-                                    <div class="absolute -top-2 -right-2 bg-primary text-navy text-[8px] font-black px-1.5 py-0.5 rounded-full border border-navy/20 flex items-center gap-0.5">
-                                        <i data-lucide="heart" class="w-2 h-2 fill-navy"></i> ${hearts}
+                                    <div class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-lg flex items-center gap-1 shadow-lg">
+                                        ❤️ ${l.heartCount || 0}
                                     </div>
                                 </div>
                                 <div>
-                                    <h4 class="font-bold text-sm dark:text-white uppercase tracking-tight">${l.title}</h4>
-                                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Status: ${l.isSoldOut ? 'Sold Out' : 'Active'}</p>
+                                    <h4 class="font-bold text-navy dark:text-white uppercase tracking-tight">${l.title}</h4>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="text-[8px] font-black uppercase tracking-[0.2em] ${l.isSold ? 'text-red-500' : 'text-primary'}" x-text="'${l.isSold ? 'Sold' : 'Active'}'"></span>
+                                        <span class="text-[8px] text-slate-400 font-bold uppercase tracking-[0.2em] border-l border-slate-200 dark:border-slate-700 pl-2">KSh ${l.price.toLocaleString()}</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="flex gap-2">
-                                ${!l.isSoldOut ? `
-                                    <button onclick="markAsSold('${l.id}')" class="px-3 py-1 bg-accent text-white rounded-lg text-[10px] font-bold uppercase">Mark Sold</button>
-                                ` : ''}
-                                <button onclick="deleteListing('${l.id}')" class="px-3 py-1 bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-lg text-[10px] font-bold uppercase transition-colors hover:bg-red-500 hover:text-white">Delete</button>
+                            <div class="flex items-center gap-2">
+                                <button onclick="markAsSold('${l.id}')" 
+                                        class="px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${l.isSold ? 'bg-slate-100 dark:bg-slate-800 text-slate-400' : 'bg-primary/10 text-primary hover:bg-primary hover:text-navy'}">
+                                    ${l.isSold ? 'Restock' : 'Mark Sold'}
+                                </button>
+                                <button onclick="deleteListing('${l.id}')" class="p-2.5 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
                             </div>
                         </div>
                     `;
                 })).then(res => res.join(''));
             } else {
-                myListingsGrid.innerHTML = `<p class="text-center py-8 text-slate-400 text-xs italic">No listings posted yet.</p>`;
+                myListingsGrid.innerHTML = `<div class="col-span-full py-20 text-center"><p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">No listings posted yet.</p></div>`;
             }
         } else {
             // Buyer Role: Show Favorites
@@ -661,6 +690,10 @@ async function renderListingDetails(listing) {
                         <i data-lucide="heart" class="w-5 h-5 text-red-500 fill-red-500"></i>
                         <span id="count-detail-${listing.id}" class="text-lg font-black text-red-500">${listing.heartCount || 0}</span>
                     </div>
+                    <button @click="window.shareListing('${listing.title.replace(/'/g, "\\'")}', '${listing.id}')" 
+                            class="ml-auto p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl text-slate-500 hover:text-primary transition-all group" title="Share Product">
+                        <i data-lucide="share-2" class="w-6 h-6 group-hover:scale-110 transition-transform"></i>
+                    </button>
                 </div>
 
                 <div class="p-8 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-border dark:border-slate-800 space-y-4">
@@ -669,10 +702,11 @@ async function renderListingDetails(listing) {
                 </div>
 
                 <div class="flex flex-col gap-4">
-                    <a href="https://wa.me/${listing.sellerPhone}?text=Hello ${listing.sellerName}, I'm interested in your ${listing.title} on MGCE Marketplace." target="_blank" class="px-8 py-5 bg-navy dark:bg-primary text-primary dark:text-navy rounded-2xl font-black text-xl flex items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-2xl shadow-navy/20 dark:shadow-primary/10 uppercase tracking-widest">
+                    <button @click="$dispatch('open-contact', { listing: ${JSON.stringify(listing).replace(/"/g, '&quot;')} })" 
+                            class="px-8 py-6 bg-navy dark:bg-primary text-primary dark:text-navy rounded-[32px] font-black text-xl flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-navy/20 dark:shadow-primary/10 uppercase tracking-widest">
                         <i data-lucide="message-circle" class="w-6 h-6"></i>
                         Contact Seller
-                    </a>
+                    </button>
                 </div>
 
                 <!-- Seller Profile Mini-Card -->
@@ -722,3 +756,109 @@ window.handleLogout = async () => {
         window.location.href = 'index.html';
     }
 }
+
+// --- Elite Pack 3: Hub & Search Logic ---
+
+async function renderTrendingSlider() {
+    const container = document.getElementById('trending-slider');
+    if (!container) return;
+
+    const trending = await window.MarketplaceDB.getTrendingListings(6);
+    if (!trending.length) {
+        container.innerHTML = `<p class="text-slate-400 text-xs py-10 uppercase tracking-widest pl-4">No trending items yet. Add some hearts!</p>`;
+        return;
+    }
+
+    container.innerHTML = trending.map(item => `
+        <div class="flex-shrink-0 w-72 snap-center group">
+            <div class="relative h-96 rounded-[32px] overflow-hidden border border-border/20 shadow-2xl transition-all duration-500 hover:scale-[1.02]">
+                <img src="${item.images?.[0] || 'placeholder'}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-navy via-navy/60 to-transparent">
+                    <span class="text-[9px] font-black text-primary uppercase tracking-[0.3em] mb-2 block">${item.category}</span>
+                    <h3 class="text-white font-bold uppercase tracking-tight truncate mb-4">${item.title}</h3>
+                    <div class="flex items-center justify-between">
+                        <span class="text-primary font-black">KSh ${item.price.toLocaleString()}</span>
+                        <a href="details.html?id=${item.id}" class="px-4 py-2 bg-white/10 backdrop-blur-md text-white text-[9px] font-black uppercase tracking-widest rounded-full border border-white/20 hover:bg-primary hover:text-navy transition-all">Details</a>
+                    </div>
+                </div>
+                <div class="absolute top-6 right-6 px-3 py-1.5 bg-red-500/80 backdrop-blur-md text-white rounded-full text-[9px] font-black flex items-center gap-1.5 shadow-lg">
+                    ❤️ ${item.heartCount || 0}
+                </div>
+            </div>
+        </div>
+    `).join('');
+    
+    lucide.createIcons();
+}
+
+async function animateStats() {
+    const stats = await window.MarketplaceDB.getGlobalStats();
+    
+    const elements = {
+        'stat-hearts': stats.totalHearts,
+        'stat-users': stats.totalUsers,
+        'stat-items': stats.totalItems
+    };
+
+    Object.entries(elements).forEach(([id, target]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        let current = 0;
+        const duration = 2000;
+        const increment = target / (duration / 16);
+        
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                el.innerText = target.toLocaleString();
+                clearInterval(timer);
+            } else {
+                el.innerText = Math.floor(current).toLocaleString();
+            }
+        }, 16);
+    });
+}
+
+// Live Search logic for shop page
+window.handleLiveSearch = async (e) => {
+    const query = e.target.value.toLowerCase();
+    const container = document.getElementById('shop-grid');
+    if (!container) return;
+
+    const listings = await window.MarketplaceDB.getAllListings();
+    const filtered = listings.filter(l => 
+        l.title.toLowerCase().includes(query) || 
+        l.category.toLowerCase().includes(query) ||
+        l.sellerName.toLowerCase().includes(query)
+    );
+
+    if (!filtered.length) {
+        container.innerHTML = `<div class="col-span-full py-20 text-center space-y-4">
+            <i data-lucide="search-x" class="w-12 h-12 text-slate-300 mx-auto"></i>
+            <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">No results matching your elite taste.</p>
+        </div>`;
+        lucide.createIcons();
+        return;
+    }
+
+    container.innerHTML = '';
+    for (const listing of filtered) {
+        container.innerHTML += await renderListingCard(listing);
+    }
+    lucide.createIcons();
+};
+
+window.shareListing = async (title, id) => {
+    const url = `${window.location.origin}/details?id=${id}`;
+    if (navigator.share) {
+        try {
+            await navigator.share({ title: `Elite Market: ${title}`, url });
+        } catch (e) {
+            console.warn("Share failed", e);
+        }
+    } else {
+        await navigator.clipboard.writeText(url);
+        alert("✨ Product link copied to clipboard! Share the love.");
+    }
+};
