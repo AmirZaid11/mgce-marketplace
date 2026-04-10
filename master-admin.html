@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Admin Dashboard | MGCE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#d4af37', // Gold
+                        accent: '#6b21a8',  // Purple
+                        navy: '#0f172a',
+                        border: '#e2e8f0',
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style> [x-cloak] { display: none !important; } </style>
+</head>
+<body class="bg-slate-50 dark:bg-navy min-h-screen font-['Outfit']" x-data="adminPanel()" x-init="init()">
+
+    <!-- Login Lock -->
+    <div x-show="!isAuthorized" x-cloak class="fixed inset-0 z-100 bg-navy flex items-center justify-center p-4">
+        <div class="w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-2xl border border-slate-800 text-center space-y-6">
+            <img src="assets/images/mgce.jpeg" alt="Logo" class="h-16 mx-auto mb-4 rounded-xl">
+            <div>
+                <h1 class="text-2xl font-black text-navy dark:text-white uppercase tracking-tight">Admin Portal</h1>
+                <p class="text-xs text-slate-400 mt-1">Enter Master Key to access platform metrics.</p>
+            </div>
+            <input type="password" x-model="keyInput" @keydown.enter="checkKey()" placeholder="Master Key" class="w-full px-4 py-4 bg-slate-100 dark:bg-slate-800 border-none rounded-2xl text-center text-2xl font-black tracking-[0.5em] focus:ring-2 focus:ring-primary outline-none dark:text-white">
+            <button @click="checkKey()" class="w-full py-4 bg-primary text-navy rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] transition-all">Authorize Access</button>
+            <p x-show="error" class="text-red-500 text-[10px] font-bold uppercase" x-text="error"></p>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div x-show="isAuthorized" class="pb-20">
+        <!-- Sidebar/Header -->
+        <header class="bg-white dark:bg-slate-900 border-b border-border dark:border-slate-800 sticky top-0 z-40">
+            <div class="container mx-auto px-4 h-20 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <img src="assets/images/mgce.jpeg" alt="Logo" class="h-10 w-auto rounded">
+                    <div class="hidden sm:block border-l border-slate-200 dark:border-slate-800 pl-4">
+                        <h2 class="font-black text-navy dark:text-white uppercase tracking-tighter">Master Control</h2>
+                        <p class="text-[10px] text-primary font-black uppercase tracking-widest leading-none">Admin Dashboard v1.0</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleTheme()" class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-primary"><i data-lucide="sun-moon" class="w-5 h-5"></i></button>
+                    <button @click="logout()" class="p-3 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl"><i data-lucide="log-out" class="w-5 h-5"></i></button>
+                </div>
+            </div>
+        </header>
+
+        <main class="container mx-auto px-4 mt-8 space-y-8">
+            <!-- Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-8 gap-4">
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-border dark:border-slate-800 shadow-sm space-y-2 lg:col-span-2">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Amount Sold</p>
+                    <h3 class="text-2xl font-black text-navy dark:text-white" x-text="'KSh ' + stats.totalRevenue.toLocaleString()"></h3>
+                </div>
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-border dark:border-slate-800 shadow-sm space-y-2 lg:col-span-1">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Feed</p>
+                    <h3 class="text-2xl font-black text-primary" x-text="stats.totalActive"></h3>
+                </div>
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-border dark:border-slate-800 shadow-sm space-y-2 lg:col-span-1">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Items Sold</p>
+                    <h3 class="text-2xl font-black text-green-500" x-text="stats.totalSold"></h3>
+                </div>
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-border dark:border-slate-800 shadow-sm space-y-2 lg:col-span-1">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Buyers</p>
+                    <h3 class="text-2xl font-black text-navy dark:text-white" x-text="stats.buyersCount"></h3>
+                </div>
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-border dark:border-slate-800 shadow-sm space-y-2 lg:col-span-1">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sellers</p>
+                    <h3 class="text-2xl font-black text-primary" x-text="stats.sellersCount"></h3>
+                </div>
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-border dark:border-slate-800 shadow-sm space-y-2 lg:col-span-1">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Elite</p>
+                    <h3 class="text-2xl font-black text-primary" x-text="stats.verifiedCount"></h3>
+                </div>
+                <div class="bg-navy p-6 rounded-3xl border border-slate-800 shadow-sm space-y-2 flex items-center justify-center lg:col-span-1">
+                    <div class="text-center">
+                        <button @click="exportCSV()" class="text-[8px] font-black text-primary uppercase tracking-tighter hover:underline">CSV</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Management Tabs -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-border dark:border-slate-800 overflow-hidden shadow-xl" x-data="{ currentTab: 'inventory' }">
+                <div class="border-b border-border dark:border-slate-800 p-2 flex flex-wrap items-center gap-1 bg-slate-50 dark:bg-slate-800/20">
+                    <button @click="currentTab = 'inventory'" 
+                            :class="currentTab === 'inventory' ? 'bg-white dark:bg-slate-900 text-primary shadow-sm' : 'text-slate-400'"
+                            class="px-4 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all">
+                        Inventory
+                    </button>
+                    <button @click="currentTab = 'users'" 
+                            :class="currentTab === 'users' ? 'bg-white dark:bg-slate-900 text-primary shadow-sm' : 'text-slate-400'"
+                            class="px-4 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all">
+                        Users
+                    </button>
+                    <button @click="currentTab = 'sellers'" 
+                            :class="currentTab === 'sellers' ? 'bg-white dark:bg-slate-900 text-primary shadow-sm' : 'text-slate-400'"
+                            class="px-4 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all">
+                        Elite Sellers
+                    </button>
+                    <button @click="currentTab = 'blacklist'" 
+                            :class="currentTab === 'blacklist' ? 'bg-white dark:bg-slate-900 text-primary shadow-sm' : 'text-slate-400'"
+                            class="px-4 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all">
+                        Blacklist
+                    </button>
+                    <button @click="currentTab = 'broadcasts'" 
+                            :class="currentTab === 'broadcasts' ? 'bg-white dark:bg-slate-900 text-primary shadow-sm' : 'text-slate-400'"
+                            class="px-4 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all">
+                        Broadcasts
+                    </button>
+                    <button @click="currentTab = 'logs'" 
+                            :class="currentTab === 'logs' ? 'bg-white dark:bg-slate-900 text-primary shadow-sm' : 'text-slate-400'"
+                            class="px-4 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all">
+                        Audit Logs
+                    </button>
+                </div>
+
+                <!-- Inventory Table -->
+                <div x-show="currentTab === 'inventory'" class="overflow-x-auto" x-cloak>
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 dark:bg-slate-800/50">
+                            <tr>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Date</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Item Name</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Seller Details</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Category</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Price</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Status</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border dark:divide-slate-800">
+                            <template x-for="item in stats.listings" :key="item.id">
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                    <td class="p-4 text-xs dark:text-slate-400" x-text="new Date(item.createdAt || Date.now()).toLocaleDateString()"></td>
+                                    <td class="p-4 font-bold text-navy dark:text-white" x-text="item.title"></td>
+                                    <td class="p-4 text-xs">
+                                        <div x-text="item.sellerName" class="font-bold dark:text-slate-200"></div>
+                                        <div x-text="item.sellerPhone" class="text-slate-400"></div>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="px-2 py-1 bg-primary/10 text-primary text-[8px] font-black uppercase rounded" x-text="item.category"></span>
+                                    </td>
+                                    <td class="p-4 font-black dark:text-white" x-text="'KSh ' + item.price.toLocaleString()"></td>
+                                    <td class="p-4">
+                                        <span :class="item.isSoldOut ? 'text-red-500' : 'text-green-500'" class="text-[10px] font-bold uppercase" x-text="item.isSoldOut ? 'Sold Out' : 'Listed'"></span>
+                                    </td>
+                                    <td class="p-4 text-right">
+                                        <button @click="killListing(item.id)" class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Users Table -->
+                <div x-show="currentTab === 'users'" class="overflow-x-auto" x-cloak>
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 dark:bg-slate-800/50">
+                            <tr>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Role</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">User Name</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Phone</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Badge</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Elite</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border dark:divide-slate-800">
+                            <template x-for="user in stats.users" :key="user.phone">
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors text-xs">
+                                    <td class="p-4">
+                                        <span :class="user.role === 'seller' ? 'bg-primary/10 text-primary' : 'bg-navy/10 text-navy dark:bg-slate-800 dark:text-slate-300'" 
+                                              class="px-2 py-0.5 rounded font-black uppercase text-[8px]" x-text="user.role"></span>
+                                    </td>
+                                    <td class="p-4 font-bold text-navy dark:text-white" x-text="user.name"></td>
+                                    <td class="p-4 text-slate-500" x-text="user.phone"></td>
+                                    <td class="p-4">
+                                        <div class="flex items-center gap-2">
+                                            <span x-show="user.badge" class="px-2 py-0.5 bg-accent text-white rounded text-[8px] font-black uppercase" x-text="user.badge"></span>
+                                            <button @click="awardBadge(user.phone)" class="text-[9px] text-primary hover:underline">Edit</button>
+                                        </div>
+                                    </td>
+                                    <td class="p-4">
+                                        <button @click="toggleUserVerification(user.phone, !user.isVerified)" 
+                                                :class="user.isVerified ? 'text-primary' : 'text-slate-300'"
+                                                class="hover:scale-110 transition-transform">
+                                            <i data-lucide="verified" class="w-5 h-5"></i>
+                                        </button>
+                                    </td>
+                                    <td class="p-4 text-right">
+                                        <button @click="adminBanSeller(user.phone)" class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all"><i data-lucide="user-x" class="w-4 h-4"></i></button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Sellers Table -->
+                <div x-show="currentTab === 'sellers'" class="overflow-x-auto" x-cloak>
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 dark:bg-slate-800/50">
+                            <tr>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Elite Status</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Seller Name</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">WhatsApp</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Items</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Amount Sold</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border dark:divide-slate-800">
+                            <template x-for="seller in stats.sellers" :key="seller.phone">
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                    <td class="p-4 text-center">
+                                        <button @click="verifySeller(seller.phone, !seller.isVerified)" 
+                                                :class="seller.isVerified ? 'text-primary' : 'text-slate-300'"
+                                                class="hover:scale-110 transition-transform">
+                                            <i data-lucide="verified" class="w-5 h-5"></i>
+                                        </button>
+                                    </td>
+                                    <td class="p-4 font-bold text-navy dark:text-white" x-text="seller.name"></td>
+                                    <td class="p-4 text-xs dark:text-slate-400" x-text="seller.phone"></td>
+                                    <td class="p-4 font-bold dark:text-white text-center" x-text="seller.itemsCount"></td>
+                                    <td class="p-4 font-black text-green-500" x-text="'KSh ' + seller.salesAmount.toLocaleString()"></td>
+                                    <td class="p-4 text-right flex items-center justify-end gap-2">
+                                        <a :href="'https://wa.me/' + seller.phone" target="_blank" class="p-2 text-primary hover:bg-primary/10 rounded-lg transition-all inline-block"><i data-lucide="message-circle" class="w-4 h-4"></i></a>
+                                        <button @click="adminBanSeller(seller.phone)" class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all"><i data-lucide="user-x" class="w-4 h-4"></i></button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Blacklist Table -->
+                <div x-show="currentTab === 'blacklist'" class="overflow-x-auto" x-cloak>
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 dark:bg-slate-800/50">
+                            <tr>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Banned Phone</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Banned Date</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border dark:divide-slate-800">
+                            <template x-for="ban in stats.blacklist" :key="ban.phone">
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                    <td class="p-4 font-bold text-navy dark:text-white" x-text="ban.phone"></td>
+                                    <td class="p-4 text-xs dark:text-slate-400" x-text="new Date(ban.timestamp).toLocaleString()"></td>
+                                    <td class="p-4 text-right">
+                                        <button @click="unbanSeller(ban.phone)" class="px-4 py-2 bg-green-500/10 text-green-500 text-[8px] font-black uppercase rounded-lg hover:bg-green-500 hover:text-white transition-all">Restore Seller</button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Broadcast Center -->
+                <div x-show="currentTab === 'broadcasts'" class="p-8 max-w-2xl mx-auto space-y-6" x-cloak x-data="{ broadcastMsg: '' }">
+                    <div class="text-center">
+                        <h4 class="text-lg font-black text-navy dark:text-white uppercase">System Broadcast Center</h4>
+                        <p class="text-xs text-slate-400">This message will appear as a banner for all users.</p>
+                    </div>
+                    <textarea x-model="broadcastMsg" placeholder="Type platform notice here..." class="w-full h-32 p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl outline-none focus:ring-2 focus:ring-primary dark:text-white"></textarea>
+                    <div class="flex gap-4">
+                        <button @click="await postBroadcast(broadcastMsg)" class="flex-1 py-4 bg-navy text-primary font-black uppercase rounded-2xl hover:scale-[1.02] transition-all">Post Global Notice</button>
+                        <button @click="await postBroadcast('')" class="px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-400 font-black uppercase rounded-2xl">Clear</button>
+                    </div>
+                    <div x-show="stats.broadcast" class="p-4 bg-primary/10 border border-primary/20 rounded-xl">
+                        <p class="text-[8px] font-black text-primary uppercase mb-1">Active Message:</p>
+                        <p class="text-xs dark:text-white italic" x-text="stats.broadcast.message"></p>
+                    </div>
+                </div>
+
+                <!-- Audit Logs -->
+                <div x-show="currentTab === 'logs'" class="overflow-x-auto" x-cloak>
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 dark:bg-slate-800/50">
+                            <tr>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Timestamp</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Action</th>
+                                <th class="p-4 text-[10px] font-black uppercase text-slate-400">Target</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border dark:divide-slate-800">
+                            <template x-for="log in stats.logs" :key="log.id">
+                                <tr class="text-xs transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                                    <td class="p-4 text-slate-400" x-text="new Date(log.timestamp).toLocaleString()"></td>
+                                    <td class="p-4">
+                                        <span :class="{
+                                            'text-red-500': log.action.includes('BAN') || log.action.includes('PURGE'),
+                                            'text-green-500': log.action.includes('RESTORE') || log.action.includes('VERIFY'),
+                                            'text-primary': log.action.includes('BROADCAST')
+                                        }" class="font-black uppercase text-[9px]" x-text="log.action"></span>
+                                    </td>
+                                    <td class="p-4 dark:text-slate-300 font-bold" x-text="log.target"></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div x-show="stats.listings.length === 0" class="p-20 text-center">
+                    <p class="text-slate-400 italic">Gathering intelligence...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="assets/js/storage.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script>
+        function adminPanel() {
+            return {
+                isAuthorized: sessionStorage.getItem('adminAuth') === 'true',
+                keyInput: '',
+                error: '',
+                stats: { listings: [], sellers: [], totalRevenue: 0, totalActive: 0, totalItems: 0 },
+
+                async init() {
+                    if (this.isAuthorized) {
+                        await this.loadStats();
+                    }
+                    lucide.createIcons();
+                },
+
+                async checkKey() {
+                    if (this.keyInput === '3639') {
+                        this.isAuthorized = true;
+                        sessionStorage.setItem('adminAuth', 'true');
+                        await this.loadStats();
+                        lucide.createIcons();
+                    } else {
+                        this.error = 'Invalid Master Key';
+                        setTimeout(() => this.error = '', 2000);
+                    }
+                },
+
+                async loadStats() {
+                    if (window.MarketplaceDB) {
+                        await window.MarketplaceDB.init();
+                        this.stats = await window.getAdminPlatformStats();
+                        // Refresh icons after tab switch or data load
+                        setTimeout(() => lucide.createIcons(), 100);
+                    }
+                },
+
+                logout() {
+                    sessionStorage.removeItem('adminAuth');
+                    location.reload();
+                },
+
+                async killListing(id) {
+                    if (confirm("Master Admin: Permanently purge this listing from the database?")) {
+                        await window.MarketplaceDB.deleteListing(id);
+                        await this.loadStats();
+                    }
+                },
+
+                async adminBanSeller(phone) {
+                    if (confirm(`CRITICAL ACTION: Permanently ban seller ${phone} and purge all their listings?`)) {
+                        await window.MarketplaceDB.banPhone(phone);
+                        await window.MarketplaceDB.purgeSellerListings(phone);
+                        await this.loadStats();
+                        alert(`Seller ${phone} has been blacklisted and purged.`);
+                    }
+                },
+
+                async unbanSeller(phone) {
+                    if (confirm(`RESTORE ACTION: Remove ${phone} from the blacklist?`)) {
+                        await window.MarketplaceDB.unbanPhone(phone);
+                        await this.loadStats();
+                    }
+                },
+
+                async postBroadcast(msg) {
+                    await window.MarketplaceDB.setBroadcast(msg);
+                    await this.loadStats();
+                    if (msg) alert("Platform Broadcast Posted Successfully!");
+                },
+
+                async verifySeller(phone, status) {
+                    await window.MarketplaceDB.setVerification(phone, status);
+                    // Sync with users store
+                    await window.MarketplaceDB.updateUser(phone, { isVerified: status });
+                    await this.loadStats();
+                },
+
+                async toggleUserVerification(phone, status) {
+                    await this.verifySeller(phone, status);
+                },
+
+                async awardBadge(phone) {
+                    const badge = prompt("Award Elite Badge (e.g. Pro Seller, Academic Star, Verified Stylist):");
+                    if (badge !== null) {
+                        await window.MarketplaceDB.updateUser(phone, { badge: badge });
+                        await this.loadStats();
+                        alert(`Badge '${badge}' awarded to user.`);
+                    }
+                },
+
+                exportCSV() {
+                    if (!this.stats.listings.length) return alert("No data to export!");
+                    
+                    const headers = ["ID", "Title", "Category", "Price", "Seller", "Phone", "Status", "Date"];
+                    const rows = this.stats.listings.map(l => [
+                        l.id,
+                        `"${l.title.replace(/"/g, '""')}"`,
+                        l.category,
+                        l.price,
+                        `"${l.sellerName}"`,
+                        l.sellerPhone,
+                        l.isSoldOut ? "Sold" : "Active",
+                        new Date(l.createdAt || Date.now()).toLocaleDateString()
+                    ]);
+
+                    const csvContent = "data:text/csv;charset=utf-8," 
+                        + headers.join(",") + "\n"
+                        + rows.map(r => r.join(",")).join("\n");
+
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", `mgce_platform_data_${Date.now()}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Management Dashboard | MGCE Marketplace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#d4af37', // Gold
+                        accent: '#6b21a8',  // Purple from Logo
+                        navy: '#0f172a',
+                        cream: '#fdfcf7',
+                        border: '#e2e8f0',
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-slate-50 dark:bg-navy text-navy selection:bg-primary/30" 
+      x-data="{ 
+        mobileMenu: false, 
+        editProfile: false, 
+        profileName: 'Loading...', 
+        profilePhone: '', 
+        profileRole: 'buyer',
+        profileBadge: '',
+        isVerified: false,
+        profileFavoritesCount: 0,
+        profileLocation: 'Maseno University',
+        profileBio: 'Passionate student entrepreneur.',
+        totalSales: 0,
+        activeCount: 0
+      }" 
+      x-init="
+        await window.MarketplaceDB.init();
+        const p = await window.MarketplaceDB.getCurrentSession();
+        if (p) {
+            profileName = p.name;
+            profilePhone = p.phone;
+            profileRole = p.role || 'buyer';
+            profileBadge = p.badge || '';
+            isVerified = p.isVerified || false;
+            profileFavoritesCount = (p.favorites || []).length;
+            profileLocation = p.location || 'Maseno University';
+            profileBio = p.bio || (p.role === 'seller' ? 'Passionate seller.' : 'MGCE Buyer');
+            
+            // Calculate Stats for sellers
+            if (profileRole === 'seller') {
+                const stats = await window.getSellerStats(profilePhone);
+                totalSales = stats.totalSales;
+                activeCount = stats.activeCount;
+            }
+        } else {
+            window.location.href = 'auth.html?mode=login';
+        }
+      ">
+
+    <!-- Navbar -->
+    <header class="sticky top-0 z-50 w-full border-b border-border glass bg-white dark:bg-slate-900 shadow-sm">
+        <div class="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
+            <a href="index.html" class="flex items-center gap-3">
+                <img src="assets/images/mgce.jpeg" alt="MGCE Logo" class="h-10 w-auto logo-glow">
+                <div class="flex flex-col leading-tight border-l border-slate-200 dark:border-slate-700 pl-3">
+                    <span class="font-black text-navy dark:text-white text-lg tracking-tight uppercase">MGCE</span>
+                    <span class="text-[10px] text-accent font-bold uppercase tracking-tighter italic">Marketplace</span>
+                </div>
+            </a>
+            <nav class="flex items-center gap-6">
+                <a href="shop.html" class="hidden lg:block text-sm font-medium hover:text-primary dark:text-slate-300">Shop</a>
+                <template x-if="profileRole === 'seller'">
+                    <a href="sell.html" class="hidden lg:block text-sm font-medium hover:text-primary dark:text-slate-300">Post Item</a>
+                </template>
+                
+                <!-- Favorites Link -->
+                <a href="shop.html?filter=favorites" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-red-500 transition-colors" title="My Favorites">
+                    <i data-lucide="heart" class="w-5 h-5"></i>
+                </a>
+
+                <!-- Theme Toggle -->
+                <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors dark:text-primary">
+                    <i data-lucide="sun-moon" class="w-5 h-5"></i>
+                </button>
+
+                <a href="account.html" class="p-2 bg-navy dark:bg-primary text-primary dark:text-navy rounded-full"><i data-lucide="user" class="w-5 h-5"></i></a>
+                <button x-show="profilePhone" @click="window.handleLogout()" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors" title="Log Out">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                </button>
+                <button @click="mobileMenu = !mobileMenu" class="md:hidden p-2 dark:text-white"><i data-lucide="menu" class="w-5 h-5"></i></button>
+            </nav>
+        </div>
+
+    </header>
+
+    <!-- Mobile Menu Overlay (Moved to Body Root for compatibility) -->
+    <div x-show="mobileMenu" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 -translate-x-full"
+         x-transition:enter-end="opacity-100 translate-x-0"
+         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave-start="opacity-100 translate-x-0"
+         x-transition:leave-end="opacity-0 -translate-x-full"
+         class="fixed inset-0 z-100 md:hidden" x-cloak>
+        
+        <div class="absolute inset-0 bg-navy/80 backdrop-blur-md" @click="mobileMenu = false"></div>
+        
+        <nav class="relative w-[280px] h-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col overflow-y-auto border-r border-primary/20 text-navy dark:text-white">
+            <!-- Menu Header -->
+            <div class="p-6 border-b border-border dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 sticky top-0 z-10">
+                <div class="flex flex-col">
+                    <span class="font-black uppercase tracking-tighter text-xl leading-none">MGCE</span>
+                    <span class="text-[9px] text-primary font-black uppercase tracking-[0.2em]">Navigation</span>
+                </div>
+                <button @click="mobileMenu = false" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 flex-1 flex flex-col bg-white dark:bg-slate-900">
+                <!-- Mobile Search -->
+                <form onsubmit="window.handleNavbarSearch(event)" class="mb-8 relative">
+                    <input type="text" placeholder="Search items/services..." class="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-border dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-primary dark:text-white text-sm">
+                    <i data-lucide="search" class="absolute left-3 top-3.5 w-4 h-4 text-slate-400"></i>
+                </form>
+
+                <div class="space-y-2 flex-1">
+                    <a href="index.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
+                        <i data-lucide="home" class="w-4 h-4"></i> Home
+                    </a>
+                    <a href="shop.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
+                        <i data-lucide="shopping-bag" class="w-4 h-4"></i> Shop All
+                    </a>
+                    <template x-if="profileRole === 'seller'">
+                        <a href="sell.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold uppercase tracking-widest text-xs transition-all">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> Post Item
+                        </a>
+                    </template>
+                    <a href="account.html" class="flex items-center gap-4 py-4 px-5 rounded-2xl bg-primary/10 text-primary font-black uppercase tracking-widest text-xs transition-all border border-primary/20">
+                        <i data-lucide="user" class="w-4 h-4"></i> My Account
+                    </a>
+                    
+                    <!-- Logout Session -->
+                    <template x-if="profilePhone">
+                        <button @click="window.handleLogout()" class="w-full flex items-center gap-4 py-4 px-5 rounded-2xl bg-red-500/10 text-red-500 font-black uppercase tracking-widest text-xs transition-all border border-red-500/20 mt-4">
+                            <i data-lucide="log-out" class="w-4 h-4"></i> Log Out
+                        </button>
+                    </template>
+                </div>
+
+                <div class="mt-auto pt-8 border-t border-border dark:border-slate-800">
+                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest text-center">Empowering Maseno Community</p>
+                </div>
+            </div>
+        </nav>
+    </div>
+                        <i data-lucide="user" class="w-5 h-5"></i> My Account
+                    </a>
+                </div>
+
+                <div class="pt-8 border-t border-border dark:border-slate-800 text-center">
+                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">MGCE Maseno Dashboard</p>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="py-12 dark:bg-navy min-h-screen">
+        <div class="container mx-auto px-4 max-w-6xl">
+            <!-- Profile Header -->
+            <div class="bg-white dark:bg-slate-900/50 p-8 rounded-4xl border border-border dark:border-slate-800 shadow-sm mb-12 flex flex-col md:flex-row items-center gap-8">
+                <div class="w-24 h-24 bg-navy dark:bg-slate-800 rounded-3xl flex items-center justify-center text-primary font-black text-4xl shadow-xl shadow-navy/10 ring-4 ring-primary/10" x-text="profileName.charAt(0)">
+                    A
+                </div>
+                <div class="flex-1 text-center md:text-left space-y-2">
+                    <div class="flex flex-col md:flex-row md:items-center gap-2">
+                        <h1 class="text-3xl font-black text-navy dark:text-white uppercase tracking-tight" x-text="profileName">Anonymous</h1>
+                        <span x-show="isVerified" class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500/10 text-green-500 text-[8px] font-black uppercase rounded-full border border-green-500/20" x-text="profileRole === 'seller' ? 'Verified Seller' : 'Verified User'"></span>
+                        <span x-show="profileBadge" class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/20 text-primary text-[8px] font-black uppercase rounded-full border border-primary/20" x-text="profileBadge"></span>
+                    </div>
+                    <p class="text-slate-400 dark:text-slate-400 font-medium text-sm" x-text="profileBio"></p>
+                    <p class="text-xs text-primary font-bold uppercase tracking-widest"><i data-lucide="map-pin" class="w-3 h-3 inline"></i> <span x-text="profileLocation">Maseno University</span></p>
+                </div>
+                <button @click="editProfile = true" class="px-6 py-3 bg-slate-50 dark:bg-slate-800 border border-border dark:border-slate-700 rounded-xl text-navy dark:text-white font-bold text-sm hover:bg-white dark:hover:bg-slate-700 transition-all flex items-center gap-2">
+                    <i data-lucide="edit-3" class="w-4 h-4"></i> <span x-text="profileRole === 'seller' ? 'Customize Shop' : 'Update Profile'"></span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                <!-- Left: Listings/Favorites Management -->
+                <div class="lg:col-span-2 space-y-8">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-black text-navy dark:text-white uppercase tracking-tight" x-text="profileRole === 'seller' ? 'Active Inventory' : 'My Loved Items'">Active Inventory</h2>
+                        <template x-if="profileRole === 'seller'">
+                            <a href="sell.html" class="text-xs font-bold text-primary flex items-center gap-1 hover:underline">
+                                <i data-lucide="plus-circle" class="w-4 h-4"></i> New Entry
+                            </a>
+                        </template>
+                    </div>
+                    
+                    <div id="my-listings-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Listings/Favorites will be injected by app.js -->
+                        <div class="animate-pulse bg-white dark:bg-slate-800 p-6 rounded-2xl border border-border dark:border-slate-700 h-24 w-full"></div>
+                    </div>
+                </div>
+
+                <!-- Right: Quick Actions -->
+                <div class="space-y-6">
+                    <h2 class="text-xl font-black text-navy dark:text-white uppercase tracking-tight" x-text="profileRole === 'seller' ? 'Your Performance' : 'Shopping Activity'">Your Performance</h2>
+                    <div class="grid grid-cols-1 gap-4">
+                        <!-- Sales (Seller Only) -->
+                        <div x-show="profileRole === 'seller'" class="bg-navy dark:bg-primary p-8 rounded-3xl text-center space-y-2 relative overflow-hidden group">
+                            <div class="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -mr-10 -mt-10"></div>
+                            <p class="text-[10px] font-black text-slate-400 dark:text-navy/50 uppercase tracking-[0.2em]">Lifetime Earnings</p>
+                            <span class="text-4xl font-black text-white dark:text-navy" x-text="'KSh ' + totalSales.toLocaleString()">KSh 0</span>
+                        </div>
+                        
+                        <!-- Ads/Favorites Count -->
+                        <div class="bg-white dark:bg-slate-900/50 p-8 rounded-3xl border border-border dark:border-slate-800 text-center flex items-center justify-between">
+                           <div class="text-left">
+                               <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" x-text="profileRole === 'seller' ? 'Active Ads' : 'Saved Items'"></p>
+                               <span class="text-2xl font-black text-navy dark:text-white" x-text="profileRole === 'seller' ? activeCount : profileFavoritesCount">0</span>
+                           </div>
+                           <div class="text-right">
+                               <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</p>
+                               <span class="text-2xl font-black text-primary" x-text="profileRole === 'seller' ? '★ ELITE' : 'VERIFIED'">VERIFIED</span>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Profile Edit Modal -->
+    <div x-show="editProfile" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-navy/60 backdrop-blur-sm" @click="editProfile = false"></div>
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl p-8 shadow-2xl animate-fade-in-up border dark:border-slate-700">
+            <h3 class="text-2xl font-black text-navy dark:text-white uppercase mb-6">Customize Your Profile</h3>
+            <form class="space-y-6" @submit.prevent="
+                try {
+                    await window.MarketplaceDB.updateUser(profilePhone, {name: profileName, location: profileLocation, bio: profileBio});
+                    editProfile = false;
+                    location.reload();
+                } catch (err) {
+                    alert('CRITICAL ERROR: ' + err.message);
+                }
+            ">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Public Name</label>
+                    <input type="text" x-model="profileName" required placeholder="e.g. Maseno Tech Hub" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-border dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 outline-none dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-400 mb-2">WhatsApp Line</label>
+                    <input type="text" x-model="profilePhone" required placeholder="254..." class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-border dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 outline-none dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Bio / Motto</label>
+                    <textarea x-model="profileBio" rows="3" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-border dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 outline-none dark:text-white text-sm" placeholder="Tell students about your shop..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Selling Location</label>
+                    <input type="text" x-model="profileLocation" required placeholder="e.g. Academic Block / Hostels" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-border dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 outline-none dark:text-white">
+                </div>
+                <button type="submit" class="w-full py-4 bg-primary text-navy font-black rounded-xl hover:scale-[1.02] transition-all shadow-xl shadow-primary/20 uppercase tracking-widest text-sm">
+                    Sync Changes
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/storage.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script>lucide.createIcons();</script>
+    <footer class="bg-navy text-white pt-20 pb-8 mt-20">
+        <div class="container mx-auto px-4 text-center space-y-4">
+            <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em]">MGCE | GIRLS SOCIETY</p>
+            <p class="text-[10px] text-slate-600 font-bold uppercase tracking-widest">© 2026 Maseno Girl Child Empowerment Marketplace</p>
+            <button onclick="window.goToAdmin()" class="opacity-30 hover:opacity-100 transition-opacity text-slate-400 hover:text-primary mt-4 block mx-auto">
+                <i data-lucide="shield-check" class="w-5 h-5 mx-auto"></i>
+            </button>
+        </div>
+    </footer>
+</body>
+</html>
