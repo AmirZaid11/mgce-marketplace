@@ -185,9 +185,16 @@
     <script>lucide.createIcons();</script>
 
     <!-- Professional Contact Modal -->
-    <div x-data="{ open: false, listing: null, message: '' }" 
+    <div x-data="{ open: false, listing: null, message: '', buyerName: 'a member' }" 
          x-show="open" 
-         @open-contact.window="open = true; listing = $event.detail.listing; message = `Hi ${$event.detail.listing.sellerName}, I'm interested in your ${$event.detail.listing.title} on MGCE Marketplace.` "
+         @open-contact.window="
+            open = true; 
+            listing = $event.detail.listing; 
+            window.MarketplaceDB.getCurrentSession().then(s => {
+                const bName = s ? s.name : 'a member';
+                message = `Hi ${listing.sellerName}, I'm ${bName} from the MGCE Community. I'm interested in your '${listing.title}' on the Marketplace!`;
+            });
+         "
          class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" x-cloak>
         <div class="absolute inset-0 bg-navy/80 backdrop-blur-md" @click="open = false"></div>
         
@@ -222,7 +229,7 @@
                 <button @click="window.open(`https://wa.me/${listing.sellerPhone}?text=${encodeURIComponent(message)}`, '_blank'); open = false" 
                         class="w-full py-6 bg-navy dark:bg-primary text-primary dark:text-navy rounded-[32px] font-black text-xl flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-navy/20 dark:shadow-primary/10 uppercase tracking-widest">
                     <i data-lucide="message-circle" class="w-6 h-6"></i>
-                    Send to WhatsApp
+                    <span x-text="listing ? `Connect with ${listing.sellerName}` : 'Send Message'"></span>
                 </button>
                 
                 <p class="text-[9px] text-center text-slate-400 font-bold uppercase tracking-widest">Powered by MGCE Girls Society</p>
