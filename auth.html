@@ -80,7 +80,7 @@
 
     <!-- Header / Logo -->
     <header class="p-8 flex justify-center relative z-10 floating">
-        <a href="/" class="flex flex-col items-center group">
+        <a href="index.html" class="flex flex-col items-center group">
             <div class="relative">
                 <div class="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <img src="assets/images/mgce.jpeg" alt="Logo" class="h-20 w-auto logo-glow mb-4 rounded-3xl relative">
@@ -210,6 +210,7 @@
                     phone: '',
                     brandName: ''
                 },
+                isSuccess: false,
 
                 init() {
                     const params = new URLSearchParams(window.location.search);
@@ -248,6 +249,21 @@
                             await MarketplaceDB.saveUser(newUser);
                             this.isNewBuyer = this.role === 'buyer';
                             this.showSuccess = true;
+                            this.isSuccess = true;
+                            
+                            window.showToast("MEMBER REGISTERED: WELCOME TO THE MALL! 💎", "success");
+                            
+                            // WOW effect
+                            setTimeout(() => {
+                                if (window.confetti) {
+                                    confetti({
+                                        particleCount: 150,
+                                        spread: 70,
+                                        origin: { y: 0.6 },
+                                        colors: ['#d4af37', '#6b21a8', '#ffffff']
+                                    });
+                                }
+                            }, 500);
                         } else {
                             // Login (Auto-checks Cloud if local missing)
                             const user = await MarketplaceDB.getUser(this.form.phone);
@@ -263,9 +279,9 @@
 
                 proceed() {
                     this.showSuccess = false;
-                    // For signup, we take them to sign in screen or just log in directly?
-                    // User said: "upon click register, a personalised message for welcome is displayed and user taken to sign in"
+                    this.isSuccess = false;
                     this.mode = 'login';
+                    window.showToast("SYNCING ACCESS: PLEASE SIGN IN 🚀");
                     // Re-run icons for new state
                     setTimeout(() => lucide.createIcons(), 50);
                 },

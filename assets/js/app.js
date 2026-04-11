@@ -383,19 +383,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             `;
         }
         lucide.createIcons();
-    }
-
-    // 5. Account Page Logic
-    const myListingsGrid = document.getElementById('my-listings-grid');
-    if (myListingsGrid) {
-        const session = await window.MarketplaceDB.getCurrentSession();
-        if (!session) {
-            window.location.href = 'auth.html?mode=login';
-            return;
-        }
-
-        const localListings = await window.MarketplaceDB.getAllListings();
-        
         if (session.role === 'seller') {
             // Fetch Sassy Stats
             const stats = await window.MarketplaceDB.getSellerStats(session.phone);
@@ -744,10 +731,10 @@ async function renderListingDetails(listing) {
                 </div>
 
                 <div class="flex flex-col gap-4">
-                    <button @click="$dispatch('open-contact', { listing: ${JSON.stringify(listing).replace(/"/g, '&quot;')} })" 
+                    <button @click="window.open(`https://wa.me/${listing.sellerPhone}?text=${encodeURIComponent(`Hi ${listing.sellerName}, I\'m interested in your \'${listing.title}\' on the MGCE MALL!`)}`, '_blank')" 
                             class="px-8 py-6 bg-navy dark:bg-primary text-primary dark:text-navy rounded-[32px] font-black text-xl flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-navy/20 dark:shadow-primary/10 uppercase tracking-widest">
                         <i data-lucide="message-circle" class="w-6 h-6"></i>
-                        Contact Seller
+                        Direct WhatsApp
                     </button>
                 </div>
 
@@ -785,18 +772,35 @@ window.markAsSold = async (id) => {
 };
 
 window.deleteListing = async (id) => {
-    if (confirm("Are you sure you want to delete this listing?")) {
+    if (confirm("Permanently purge this listing from the MALL database?")) {
         await window.MarketplaceDB.deleteListing(id);
-        location.reload();
+        window.showToast("LISTING PURGED GLOBALLY", "danger");
+        setTimeout(() => location.reload(), 1000);
+    }
+}
+
+window.editListingItem = async (id) => {
+    const listings = await window.MarketplaceDB.getAllListings();
+    const item = listings.find(l => l.id === id);
+    if (item) {
+        // Find the Alpine component for account.html
+        const el = document.querySelector('[x-data]');
+        if (el && el.__x && el.__x.$data) {
+            el.__x.$data.editingItem = { ...item };
+            el.__x.$data.editListingOpen = true;
+        } else {
+            // Fallback for non-Alpine contexts if needed
+            window.showToast("Accessing Secure Edit Module...");
+        }
     }
 }
 
 window.handleLogout = async () => {
-    if (confirm("Logout from MGCE MALL?")) {
-        await window.MarketplaceDB.clearSession();
-        alert("See you soon! Your session has been closed safely.");
+    window.showToast("SYNCING: SECURING GLOBAL SESSION...");
+    await window.MarketplaceDB.clearSession();
+    setTimeout(() => {
         window.location.href = 'index.html';
-    }
+    }, 1000);
 }
 
 // --- Elite Pack 3: Hub & Search Logic ---
@@ -812,9 +816,6 @@ async function renderTrendingSlider(providedListings) {
 
     if (!trending.length) {
         container.innerHTML = `<p class="text-slate-400 text-xs py-10 uppercase tracking-widest pl-4">No trending items yet. Add some hearts!</p>`;
-        return;
-    }
-
     container.innerHTML = trending.map(item => `
         <div class="flex-shrink-0 w-72 snap-center group">
             <div class="relative h-96 rounded-[32px] overflow-hidden border border-border/20 shadow-2xl transition-all duration-500 hover:scale-[1.02]">
@@ -905,6 +906,6 @@ window.shareListing = async (title, id) => {
         }
     } else {
         await navigator.clipboard.writeText(url);
-        alert("✨ Product link copied to clipboard! Share the love.");
+        window.showToast("LINK COPIED: BROADCAST THE LOVE! 💎", "success");
     }
 };

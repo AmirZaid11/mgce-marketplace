@@ -520,6 +520,7 @@ class MarketplaceStorage {
     }
 
     async saveListing(listing) {
+        if (!this.db) await this.init();
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(['listings'], 'readwrite');
             const store = transaction.objectStore('listings');
@@ -535,10 +536,42 @@ class MarketplaceStorage {
                         }, { merge: true });
                         console.log(`MGCE Cloud: Listing [${listing.title}] Broadcasted Successfully! 📡`);
                     } catch (e) {
-                        console.error("MGCE Cloud Error: Listing Broadcast failed.", e.message);
+                         console.error("MGCE Cloud Error: Listing Broadcast failed.", e.message);
                     }
                 }
+                window.dispatchEvent(new CustomEvent('mgce-db-updated', { detail: { type: 'listing', id: listing.id } }));
                 resolve();
+            };
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async updateListing(id, updates) {
+        if (!this.db) await this.init();
+        const listing = await this.getListing(id);
+        if (!listing) throw new Error("Listing not found locally.");
+        
+        const updated = { ...listing, ...updates, updatedAt: Date.now() };
+        
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['listings'], 'readwrite');
+            const store = transaction.objectStore('listings');
+            const request = store.put(updated);
+            
+            request.onsuccess = async () => {
+                if (this.firestore) {
+                    try {
+                        await this.firestore.collection('listings').doc(id).update({
+                            ...updates,
+                            lastSync: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        console.log(`MGCE Cloud: Global Pulse for [${id}] Updated! ✅`);
+                    } catch (e) {
+                        console.error("MGCE Cloud Error: Update sync failed.", e.message);
+                    }
+                }
+                window.dispatchEvent(new CustomEvent('mgce-db-updated', { detail: { type: 'edit', id: id } }));
+                resolve(updated);
             };
             request.onerror = () => reject(request.error);
         });
