@@ -2,6 +2,7 @@
  * MGCE MALL - Logic Layer
  * Merges static listings with local IndexedDB data and handles rendering.
  */
+console.log("MGCE MALL: Global Logic Engine Ignited 💎");
 
 // Global helper for theme toggle
 window.toggleTheme = () => {
@@ -18,13 +19,26 @@ window.handleNavbarSearch = (e) => {
     }
 };
 
-// Admin Portal Quick-Access
+// Admin Portal Quick-Access (Hardened for Luxe Update)
 window.goToAdmin = () => {
-    const key = prompt("Enter Master Key to access Admin Control:");
-    if (key === '3639') {
-        window.location.href = 'master-admin.html';
-    } else if (key) {
-        alert("Access Denied: Invalid Key.");
+    try {
+        const modal = document.getElementById('security-modal');
+        if (modal && modal.__x) {
+            modal.__x.$data.open = true;
+            return;
+        }
+        // Fallback for pages without modal
+        const key = prompt("Enter Master Key to access Admin Control:");
+        if (key === '3639') {
+            window.location.href = 'master-admin.html';
+        } else if (key) {
+            if (window.showToast) window.showToast("ACCESS DENIED: INVALID KEY", "danger");
+            else alert("Access Denied: Invalid Key.");
+        }
+    } catch (e) {
+        console.error("MALL: Admin Access Error", e);
+        const key = prompt("MALL SECURITY FALLBACK: Enter Master Key:");
+        if (key === '3639') window.location.href = 'master-admin.html';
     }
 };
 
@@ -731,7 +745,7 @@ async function renderListingDetails(listing) {
                 </div>
 
                 <div class="flex flex-col gap-4">
-                    <button @click="window.open(`https://wa.me/${listing.sellerPhone}?text=${encodeURIComponent(`Hi ${listing.sellerName}, I\'m interested in your \'${listing.title}\' on the MGCE MALL!`)}`, '_blank')" 
+                    <button @click="window.open('https://wa.me/${listing.sellerPhone}?text=' + encodeURIComponent('Hi ${listing.sellerName.replace(/'/g, '\\\'')}, I\'m interested in your \'${listing.title.replace(/'/g, '\\\'')}\' on the MGCE MALL!'), '_blank')" 
                             class="px-8 py-6 bg-navy dark:bg-primary text-primary dark:text-navy rounded-[32px] font-black text-xl flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-navy/20 dark:shadow-primary/10 uppercase tracking-widest">
                         <i data-lucide="message-circle" class="w-6 h-6"></i>
                         Direct WhatsApp
@@ -816,6 +830,9 @@ async function renderTrendingSlider(providedListings) {
 
     if (!trending.length) {
         container.innerHTML = `<p class="text-slate-400 text-xs py-10 uppercase tracking-widest pl-4">No trending items yet. Add some hearts!</p>`;
+        return;
+    }
+
     container.innerHTML = trending.map(item => `
         <div class="flex-shrink-0 w-72 snap-center group">
             <div class="relative h-96 rounded-[32px] overflow-hidden border border-border/20 shadow-2xl transition-all duration-500 hover:scale-[1.02]">
