@@ -70,16 +70,7 @@
                     <i data-lucide="users" class="w-4 h-4"></i> Platforms Users
                 </button>
                 <button @click="currentTab = 'broadcasts'" :class="currentTab === 'broadcasts' ? 'bg-primary text-navy' : 'text-slate-400 hover:text-white'" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all">
-                    <i data-lucide="radio" class="w-4 h-4"></i> Global Pulse
-                </button>
-                <button @click="currentTab = 'sellers'" :class="currentTab === 'sellers' ? 'bg-primary text-navy' : 'text-slate-400 hover:text-white'" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all">
-                    <i data-lucide="award" class="w-4 h-4"></i> MALL Sellers
-                </button>
-                <button @click="currentTab = 'proxy_post'" :class="currentTab === 'proxy_post' ? 'bg-primary text-navy' : 'text-slate-400 hover:text-white'" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all">
-                    <i data-lucide="shield-plus" class="w-4 h-4"></i> Proxy Post
-                </button>
-                <button @click="currentTab = 'broadcasts'" :class="currentTab === 'broadcasts' ? 'bg-primary text-navy' : 'text-slate-400 hover:text-white'" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all">
-                    <i data-lucide="megaphone" class="w-4 h-4"></i> Broadcasts
+                    <i data-lucide="megaphone" class="w-4 h-4"></i> PUBLISH BROADCAST
                 </button>
                 <button @click="currentTab = 'blacklist'" :class="currentTab === 'blacklist' ? 'bg-primary text-navy' : 'text-slate-400 hover:text-white'" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all">
                     <i data-lucide="user-x" class="w-4 h-4"></i> Blacklist
@@ -161,11 +152,14 @@
                         <p class="text-[10px] text-slate-400 uppercase tracking-widest font-black mt-1">Platform Control Utility</p>
                     </div>
                     <div class="flex items-center gap-3">
-                         <div class="flex items-center gap-1 bg-slate-50 dark:bg-slate-800 p-1 rounded-2xl">
-                            <button @click="currentTab = 'inventory'" :class="currentTab === 'inventory' ? 'bg-navy dark:bg-primary text-primary dark:text-navy shadow-lg' : 'text-slate-400 hover:text-navy'" class="px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">Inventory</button>
-                            <button @click="currentTab = 'users'" :class="currentTab === 'users' ? 'bg-navy dark:bg-primary text-primary dark:text-navy shadow-lg' : 'text-slate-400 hover:text-navy'" class="px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">Users</button>
-                            <button @click="currentTab = 'blacklist'" :class="currentTab === 'blacklist' ? 'bg-navy dark:bg-primary text-primary dark:text-navy shadow-lg' : 'text-slate-400 hover:text-navy'" class="px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">Blacklist</button>
-                            <button @click="currentTab = 'proxy_post'" :class="currentTab === 'proxy_post' ? 'bg-navy dark:bg-primary text-primary dark:text-navy shadow-lg' : 'text-slate-400 hover:text-navy'" class="px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">Proxy</button>
+                         <div class="flex items-center gap-1 bg-slate-50 dark:bg-slate-800 p-1 rounded-2xl overflow-x-auto no-scrollbar max-w-[500px]">
+                            <button @click="currentTab = 'inventory'" :class="currentTab === 'inventory' ? 'bg-navy dark:bg-primary text-primary dark:text-navy shadow-lg' : 'text-slate-400 hover:text-navy'" class="px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap">Inventory</button>
+                            <button @click="currentTab = 'users'" :class="currentTab === 'users' ? 'bg-navy dark:bg-primary text-primary dark:text-navy shadow-lg' : 'text-slate-400 hover:text-navy'" class="px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap">Users</button>
+                            <button @click="currentTab = 'sellers'" :class="currentTab === 'sellers' ? 'bg-navy dark:bg-primary text-primary dark:text-navy shadow-lg' : 'text-slate-400 hover:text-navy'" class="px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap">Sellers</button>
+                            <button @click="currentTab = 'broadcasts'" :class="currentTab === 'broadcasts' ? 'bg-navy dark:bg-primary text-primary dark:text-navy shadow-lg' : 'text-slate-400 hover:text-navy'" class="px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap">Broadcasts</button>
+                            <button @click="currentTab = 'blacklist'" :class="currentTab === 'blacklist' ? 'bg-navy dark:bg-primary text-primary dark:text-navy shadow-lg' : 'text-slate-400 hover:text-navy'" class="px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap">Blacklist</button>
+                            <button @click="currentTab = 'proxy_post'" :class="currentTab === 'proxy_post' ? 'bg-navy dark:bg-primary text-primary dark:text-navy shadow-lg' : 'text-slate-400 hover:text-navy'" class="px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap">Proxy</button>
+                            <button @click="currentTab = 'logs'" :class="currentTab === 'logs' ? 'bg-navy dark:bg-primary text-primary dark:text-navy shadow-lg' : 'text-slate-400 hover:text-navy'" class="px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap">Logs</button>
                          </div>
                          <button @click="exportCSV()" class="p-3 bg-navy dark:bg-primary text-primary dark:text-navy rounded-xl shadow-lg hover:scale-110 transition-all">
                             <i data-lucide="download" class="w-5 h-5"></i>
@@ -174,6 +168,28 @@
                 </div>
 
                 <div class="flex-1 p-8">
+                
+                <!-- Broadcast Center (Elevated for Visibility) -->
+                <div x-show="currentTab === 'broadcasts'" class="p-8 max-w-2xl mx-auto space-y-6" x-cloak x-data="{ broadcastMsg: '' }">
+                    <div class="text-center">
+                        <h4 class="text-xl font-black text-navy dark:text-white uppercase tracking-tighter">MALL Global Pulse</h4>
+                        <p class="text-[10px] text-slate-400 uppercase tracking-widest font-black mt-1">Distribute notices to all users instantly.</p>
+                    </div>
+                    <div class="relative luxe-card p-6 bg-slate-50 dark:bg-slate-800/50 border-2 border-primary/20">
+                        <textarea x-model="broadcastMsg" placeholder="Type your MALL announcement here..." class="w-full h-32 bg-transparent border-none outline-none dark:text-white font-medium text-sm resize-none"></textarea>
+                        <div class="absolute bottom-4 right-4 text-[8px] font-black text-slate-400" x-text="broadcastMsg.length + ' Characters'"></div>
+                    </div>
+                    <div class="flex gap-4">
+                        <button @click="await postBroadcast(broadcastMsg)" class="flex-1 py-6 bg-navy dark:bg-primary text-primary dark:text-navy font-black uppercase rounded-3xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary/10">Publish Global Notice</button>
+                        <button @click="await postBroadcast(''); broadcastMsg = ''" class="px-8 py-6 bg-slate-100 dark:bg-slate-800 text-slate-400 font-black uppercase rounded-3xl hover:text-red-500 transition-colors">Clear</button>
+                    </div>
+                    <div x-show="stats.broadcast && stats.broadcast.message" class="p-6 bg-primary/5 border border-primary/20 rounded-3xl animate-pulse">
+                        <p class="text-[9px] font-black text-primary uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <i data-lucide="radio" class="w-3 h-3"></i> Currently Broadcasting:
+                        </p>
+                        <p class="text-sm dark:text-white font-medium italic" x-text="'&ldquo;' + stats.broadcast.message + '&rdquo;'"></p>
+                    </div>
+                </div>
 
                 <!-- Inventory Table -->
                 <div x-show="currentTab === 'inventory'" class="overflow-x-auto" x-cloak>
@@ -319,22 +335,6 @@
                     </table>
                 </div>
 
-                <!-- Broadcast Center -->
-                <div x-show="currentTab === 'broadcasts'" class="p-8 max-w-2xl mx-auto space-y-6" x-cloak x-data="{ broadcastMsg: '' }">
-                    <div class="text-center">
-                        <h4 class="text-lg font-black text-navy dark:text-white uppercase">System Broadcast Center</h4>
-                        <p class="text-xs text-slate-400">This message will appear as a banner for all users.</p>
-                    </div>
-                    <textarea x-model="broadcastMsg" placeholder="Type platform notice here..." class="w-full h-32 p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl outline-none focus:ring-2 focus:ring-primary dark:text-white"></textarea>
-                    <div class="flex gap-4">
-                        <button @click="await postBroadcast(broadcastMsg)" class="flex-1 py-4 bg-navy text-primary font-black uppercase rounded-2xl hover:scale-[1.02] transition-all">Post Global Notice</button>
-                        <button @click="await postBroadcast('')" class="px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-400 font-black uppercase rounded-2xl">Clear</button>
-                    </div>
-                    <div x-show="stats.broadcast" class="p-4 bg-primary/10 border border-primary/20 rounded-xl">
-                        <p class="text-[8px] font-black text-primary uppercase mb-1">Active Message:</p>
-                        <p class="text-xs dark:text-white italic" x-text="stats.broadcast.message"></p>
-                    </div>
-                </div>
 
                 <!-- Audit Logs -->
                 <div x-show="currentTab === 'logs'" class="overflow-x-auto" x-cloak>
