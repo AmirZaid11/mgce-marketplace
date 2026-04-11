@@ -78,6 +78,12 @@
                 <button @click="currentTab = 'broadcasts'" :class="currentTab === 'broadcasts' ? 'bg-primary text-navy' : 'text-slate-400 hover:text-white'" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all">
                     <i data-lucide="megaphone" class="w-4 h-4"></i> Broadcasts
                 </button>
+                <button @click="currentTab = 'blacklist'" :class="currentTab === 'blacklist' ? 'bg-primary text-navy' : 'text-slate-400 hover:text-white'" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all">
+                    <i data-lucide="user-x" class="w-4 h-4"></i> Blacklist
+                </button>
+                <button @click="currentTab = 'logs'" :class="currentTab === 'logs' ? 'bg-primary text-navy' : 'text-slate-400 hover:text-white'" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all">
+                    <i data-lucide="activity" class="w-4 h-4"></i> Audit Logs
+                </button>
             </nav>
 
             <div class="p-6 border-t border-white/5 space-y-4">
@@ -155,7 +161,7 @@
                          <div class="flex items-center gap-1 bg-slate-50 dark:bg-slate-800 p-1 rounded-2xl">
                             <button @click="currentTab = 'inventory'" :class="currentTab === 'inventory' ? 'bg-navy dark:bg-primary text-primary dark:text-navy shadow-lg' : 'text-slate-400 hover:text-navy'" class="px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">Inventory</button>
                             <button @click="currentTab = 'users'" :class="currentTab === 'users' ? 'bg-navy dark:bg-primary text-primary dark:text-navy shadow-lg' : 'text-slate-400 hover:text-navy'" class="px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">Users</button>
-                            <button @click="currentTab = 'sellers'" :class="currentTab === 'sellers' ? 'bg-navy dark:bg-primary text-primary dark:text-navy shadow-lg' : 'text-slate-400 hover:text-navy'" class="px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">Elite</button>
+                            <button @click="currentTab = 'blacklist'" :class="currentTab === 'blacklist' ? 'bg-navy dark:bg-primary text-primary dark:text-navy shadow-lg' : 'text-slate-400 hover:text-navy'" class="px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">Blacklist</button>
                             <button @click="currentTab = 'proxy_post'" :class="currentTab === 'proxy_post' ? 'bg-navy dark:bg-primary text-primary dark:text-navy shadow-lg' : 'text-slate-400 hover:text-navy'" class="px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">Proxy</button>
                          </div>
                          <button @click="exportCSV()" class="p-3 bg-navy dark:bg-primary text-primary dark:text-navy rounded-xl shadow-lg hover:scale-110 transition-all">
@@ -460,6 +466,22 @@
         </main>
     </div>
 
+    <!-- Premium Toast Notification -->
+    <div x-show="toast.show" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 translate-y-4"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 translate-y-0"
+         x-transition:leave-end="opacity-0 translate-y-4"
+         class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100]" x-cloak>
+        <div :class="toast.type === 'danger' ? 'bg-red-600' : 'bg-navy dark:bg-primary text-primary dark:text-navy'"
+             class="px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3">
+            <i :data-lucide="toast.type === 'danger' ? 'shield-alert' : 'shield-check'" class="w-5 h-5"></i>
+            <span class="text-[10px] font-black uppercase tracking-widest" x-text="toast.message"></span>
+        </div>
+    </div>
+
     <script src="assets/js/storage.js"></script>
     <script src="assets/js/app.js"></script>
     <script>
@@ -471,11 +493,19 @@
                 stats: { listings: [], sellers: [], totalRevenue: 0, totalActive: 0, totalItems: 0 },
                 proxyForm: { sellerName: '', sellerPhone: '', title: '', price: '', category: '', description: '', type: 'product' },
                 proxyImages: [],
+                toast: { show: false, message: '', type: 'success' },
 
                 async init() {
                     if (this.isAuthorized) {
                         await this.loadStats();
                     }
+
+                    // --- Master Global Pulse Listener ---
+                    window.addEventListener('mgce-db-updated', async (e) => {
+                        console.log(`MGCE Admin: Global Pulse Detected [${e.detail.type}]. Syncing Dashboard...`);
+                        await this.loadStats();
+                    });
+
                     this.$watch('currentTab', () => {
                         setTimeout(() => lucide.createIcons(), 50);
                     });
@@ -503,6 +533,13 @@
                     }
                 },
 
+                showToast(msg, type = 'success') {
+                    this.toast.message = msg;
+                    this.toast.type = type;
+                    this.toast.show = true;
+                    setTimeout(() => this.toast.show = false, 3000);
+                },
+
                 logout() {
                     sessionStorage.removeItem('adminAuth');
                     location.reload();
@@ -520,7 +557,7 @@
                         await window.MarketplaceDB.banPhone(phone);
                         await window.MarketplaceDB.purgeSellerListings(phone);
                         await this.loadStats();
-                        alert(`Seller ${phone} has been blacklisted and purged.`);
+                        this.showToast(`SELLER ${phone} BLACKLISTED GLOBALLY`, 'danger');
                     }
                 },
 
@@ -534,7 +571,7 @@
                 async postBroadcast(msg) {
                     await window.MarketplaceDB.setBroadcast(msg);
                     await this.loadStats();
-                    if (msg) alert("Platform Broadcast Posted Successfully!");
+                    if (msg) this.showToast("GLOBAL BROADCAST DISTRIBUTED");
                 },
 
                 async verifySeller(phone, status) {

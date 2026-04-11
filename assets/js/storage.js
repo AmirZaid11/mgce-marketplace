@@ -313,43 +313,59 @@ class MarketplaceStorage {
     async syncCloudData() {
         if (!this.firestore) return;
 
-        // 1. Listings Listener
-        this.firestore.collection('listings').onSnapshot(async (snapshot) => {
-            console.log(`MGCE Cloud: Received Global Pulse [${snapshot.size} items].`);
-            const transaction = this.db.transaction(['listings'], 'readwrite');
-            const store = transaction.objectStore('listings');
-            
-            snapshot.docChanges().forEach((change) => {
+        // 1. Unified Listing Listener
+        this.firestore.collection('listings').onSnapshot(snapshot => {
+            snapshot.docChanges().forEach(async change => {
                 const data = change.doc.data();
-                if (change.type === "added" || change.type === "modified") {
-                    store.put(data);
-                } else if (change.type === "removed") {
-                    store.delete(change.doc.id);
+                if (change.type === 'added' || change.type === 'modified') {
+                    await this.saveListingLocally(data);
+                } else if (change.type === 'removed') {
+                    await this.deleteListingLocally(change.doc.id);
                 }
             });
-
-            // Notify UI that a global pulse was received
             window.dispatchEvent(new CustomEvent('mgce-db-updated', { detail: { type: 'listings' } }));
-        }, (err) => {
-            console.error("MGCE Cloud Error: Listings Sync Failed (Check Firestore Rules)", err.message);
-        });
+        }, err => console.error("MGCE Cloud: Listing listener stalled.", err));
 
-        // 2. Profiles Sync (Verification & Badges)
-        this.firestore.collection('profiles').onSnapshot(async (snapshot) => {
-            console.log(`MGCE Cloud: Synchronizing Identity Vault...`);
-            const transaction = this.db.transaction(['users'], 'readwrite');
-            const store = transaction.objectStore('users');
-            
-            snapshot.docChanges().forEach((change) => {
+        // 2. Profiles / Identity Listener
+        this.firestore.collection('profiles').onSnapshot(snapshot => {
+            snapshot.docChanges().forEach(async change => {
                 const data = change.doc.data();
-                if (change.type === "added" || change.type === "modified") {
+                if (change.type === 'added' || change.type === 'modified') {
+                    // Optimized put
+                    const transaction = this.db.transaction(['users'], 'readwrite');
+                    const store = transaction.objectStore('users');
                     store.put(data);
                 }
             });
-
             window.dispatchEvent(new CustomEvent('mgce-db-updated', { detail: { type: 'profiles' } }));
-        }, (err) => {
-            console.error("MGCE Cloud Error: Profiles Sync Failed (Check Firestore Rules)", err.message);
+        }, err => console.error("MGCE Cloud: Identity sync stalled.", err));
+
+        // 3. Administrative Blacklist Listener
+        this.firestore.collection('blacklist').onSnapshot(snapshot => {
+            snapshot.docChanges().forEach(async change => {
+                const data = change.doc.data();
+                if (change.type === 'added') await this.banPhoneLocally(data.phone, data.timestamp);
+                if (change.type === 'removed') await this.unbanPhoneLocally(change.doc.id);
+            });
+            window.dispatchEvent(new CustomEvent('mgce-db-updated', { detail: { type: 'blacklist' } }));
+        }, err => console.error("MGCE Cloud: Blacklist sync stalled.", err));
+
+        // 4. Verification Pulse
+        this.firestore.collection('verifications').onSnapshot(snapshot => {
+            snapshot.docChanges().forEach(async change => {
+                if (change.type === 'added') await this.setVerificationLocally(change.doc.id, true);
+                if (change.type === 'removed') await this.setVerificationLocally(change.doc.id, false);
+            });
+            window.dispatchEvent(new CustomEvent('mgce-db-updated', { detail: { type: 'verifications' } }));
+        }, err => console.error("MGCE Cloud: Verification pulse stalled.", err));
+
+        // 5. Global Broadcast
+        this.firestore.collection('broadcasts').doc('current').onSnapshot(doc => {
+            const data = doc.data();
+            if (data) {
+                this.setBroadcastLocally(data.message);
+                window.dispatchEvent(new CustomEvent('mgce-db-updated', { detail: { type: 'broadcast' } }));
+            }
         });
     }
 
@@ -509,7 +525,18 @@ class MarketplaceStorage {
             const store = transaction.objectStore('listings');
             const request = store.delete(id);
 
-            request.onsuccess = () => resolve();
+            request.onsuccess = async () => {
+                // Cloud Deletion Push
+                if (this.firestore) {
+                    try {
+                        await this.firestore.collection('listings').doc(id).delete();
+                        console.log(`MGCE Cloud: Listing [${id}] purged globally. 🚮`);
+                    } catch (e) {
+                         console.error("MGCE Cloud Error: Global deletion failed.", e.message);
+                    }
+                }
+                resolve();
+            };
             request.onerror = () => reject(request.error);
         });
     }
@@ -550,13 +577,25 @@ class MarketplaceStorage {
 
     // Blacklist Logic
     async banPhone(phone) {
+        const timestamp = Date.now();
         await this.addAuditLog('BAN_SELLER', phone);
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(['blacklist'], 'readwrite');
             const store = transaction.objectStore('blacklist');
-            const request = store.put({ phone, timestamp: Date.now() });
+            const request = store.put({ phone, timestamp });
 
-            request.onsuccess = () => resolve();
+            request.onsuccess = async () => {
+                // Cloud Ban Push
+                if (this.firestore) {
+                    try {
+                        await this.firestore.collection('blacklist').doc(phone).set({ phone, timestamp });
+                        console.log(`MGCE Cloud: User [${phone}] blacklisted globally. 🚫`);
+                    } catch (e) {
+                        console.error("MGCE Cloud Error: Global ban failed.", e.message);
+                    }
+                }
+                resolve();
+            };
             request.onerror = () => reject(request.error);
         });
     }
@@ -568,7 +607,18 @@ class MarketplaceStorage {
             const store = transaction.objectStore('blacklist');
             const request = store.delete(phone);
 
-            request.onsuccess = () => resolve();
+            request.onsuccess = async () => {
+                // Cloud Unban Push
+                if (this.firestore) {
+                    try {
+                        await this.firestore.collection('blacklist').doc(phone).delete();
+                        console.log(`MGCE Cloud: User [${phone}] restored globally. 🔓`);
+                    } catch (e) {
+                        console.error("MGCE Cloud Error: Global restore failed.", e.message);
+                    }
+                }
+                resolve();
+            };
             request.onerror = () => reject(request.error);
         });
     }
@@ -602,15 +652,26 @@ class MarketplaceStorage {
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(['verifications'], 'readwrite');
             const store = transaction.objectStore('verifications');
-            if (status) {
-                const request = store.put({ phone, timestamp: Date.now() });
-                request.onsuccess = () => resolve();
-                request.onerror = () => reject(request.error);
-            } else {
-                const request = store.delete(phone);
-                request.onsuccess = () => resolve();
-                request.onerror = () => reject(request.error);
-            }
+            
+            const localWork = status ? store.put({ phone, timestamp: Date.now() }) : store.delete(phone);
+            
+            localWork.onsuccess = async () => {
+                // Cloud Verification Push
+                if (this.firestore) {
+                    try {
+                        if (status) {
+                            await this.firestore.collection('verifications').doc(phone).set({ phone, timestamp: Date.now() });
+                        } else {
+                            await this.firestore.collection('verifications').doc(phone).delete();
+                        }
+                        console.log(`MGCE Cloud: Verification for [${phone}] synced. 🎖️`);
+                    } catch (e) {
+                        console.error("MGCE Cloud Error: Verification sync failed.", e.message);
+                    }
+                }
+                resolve();
+            };
+            localWork.onerror = () => reject(localWork.error);
         });
     }
 
