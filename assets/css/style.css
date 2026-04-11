@@ -3,6 +3,17 @@
     --radius-luxe: 40px;
     --shadow-luxe: 0 40px 100px -20px rgba(15, 23, 42, 0.08); /* Atmospheric Depth */
     --shadow-glow: 0 0 30px rgba(212, 175, 55, 0.2);
+    --nav-offset: 1.5rem; /* top-6 default */
+}
+
+/* Universal Zero-Overlap Logic */
+body.has-broadcast {
+    --nav-offset: 3.5rem; /* Push down when broadcast reaches top-0 */
+}
+
+#mgce-navbar-wrapper {
+    top: var(--nav-offset);
+    transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Floating Luxe Card Base */
@@ -147,4 +158,23 @@ body {
 
 .animate-luxe-up {
     animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+/* --- MGCE Grid Stabilization: Resolve Overlaps --- */
+.mgce-grid-fix {
+    display: grid !important;
+    gap: 1.5rem !important;
+    align-items: stretch !important;
+}
+
+.mgce-grid-fix > * {
+    min-width: 0; /* Prevents flex/grid children from bursting containers */
+}
+
+@media (max-width: 640px) {
+    .mgce-grid-fix { grid-template-cols: 1fr !important; }
+}
+
+/* Ensure cards in grids don't overlap vertically */
+.luxe-card {
+    height: 100%;
 }

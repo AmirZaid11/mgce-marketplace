@@ -72,6 +72,35 @@
     </script>
 </head>
 <body class="bg-navy-dark min-h-screen flex flex-col selection:bg-primary/30" x-data="authHandler()" x-init="init()" x-cloak>
+    
+    <!-- Luxe Navbar -->
+    <div id="mgce-navbar-wrapper" class="fixed inset-x-0 z-50 px-4 md:px-8 pointer-events-none text-navy dark:text-white">
+        <header class="container mx-auto max-w-6xl nav-capsule flex items-center justify-between gap-4 pointer-events-auto animate-luxe-up">
+            <a href="index.html" class="flex items-center gap-3 pl-4 group">
+                <img src="assets/images/mgce.jpeg" alt="Logo" class="h-10 w-10 min-w-[40px] rounded-2xl shadow-lg shadow-black/20 group-hover:scale-110 transition-transform">
+                <div class="hidden sm:flex flex-col border-l border-white/10 pl-3">
+                    <span class="text-white font-black uppercase tracking-tighter text-lg leading-tight">MGCE</span>
+                    <span class="text-[8px] text-primary font-black uppercase tracking-[0.3em]">MALL</span>
+                </div>
+            </a>
+            
+            <nav class="flex items-center gap-1 md:gap-2 pr-2">
+                <div class="hidden md:flex items-center gap-1 mr-2 bg-white/5 p-1 rounded-2xl">
+                    <a href="shop.html" class="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Shop</a>
+                </div>
+
+                <!-- Icons Group -->
+                <div class="flex items-center gap-1">
+                    <button onclick="toggleTheme()" class="p-3 text-primary hover:bg-white/5 rounded-2xl transition-all group" title="Switch Theme">
+                        <i data-lucide="sun-moon" class="w-5 h-5 group-hover:rotate-12 transition-transform"></i>
+                    </button>
+                    <a href="auth.html" class="p-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-2xl transition-all">
+                        <i data-lucide="user" class="w-5 h-5"></i>
+                    </a>
+                </div>
+            </nav>
+        </header>
+    </div>
 
     <!-- Nebula Background Orbs -->
     <div class="nebula-bg"></div>
@@ -198,6 +227,8 @@
     </template>
 
     <script src="assets/js/storage.js"></script>
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/app.js"></script>
     <script>
         function authHandler() {
             return {

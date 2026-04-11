@@ -50,31 +50,44 @@
         }
       ">
 
-    <!-- Navbar -->
-    <header class="sticky top-0 z-50 w-full border-b border-border glass bg-white/80 dark:bg-navy/80">
-        <div class="container mx-auto px-4 h-16 flex items-center justify-between gap-2">
-            <a href="index.html" class="flex items-center gap-2 min-w-0 group">
-                <img src="assets/images/mgce.jpeg" alt="MGCE Logo" class="h-8 md:h-12 w-auto shrink-0 logo-glow">
-                <div class="flex flex-col leading-tight border-l border-slate-200 dark:border-slate-700 pl-2 overflow-hidden">
-                    <span class="font-black text-navy dark:text-white text-sm md:text-lg tracking-tight uppercase truncate">MGCE</span>
-                    <span class="text-[8px] text-accent font-bold uppercase tracking-tighter italic truncate">Marketplace</span>
+    <!-- Luxe Navbar -->
+    <div id="mgce-navbar-wrapper" class="fixed inset-x-0 z-50 px-4 md:px-8 pointer-events-none text-navy dark:text-white">
+        <header class="container mx-auto max-w-6xl nav-capsule flex items-center justify-between gap-4 pointer-events-auto animate-luxe-up">
+            <a href="index.html" class="flex items-center gap-3 pl-4 group">
+                <img src="assets/images/mgce.jpeg" alt="Logo" class="h-10 w-10 min-w-[40px] rounded-2xl shadow-lg shadow-black/20 group-hover:scale-110 transition-transform">
+                <div class="hidden sm:flex flex-col border-l border-white/10 pl-3">
+                    <span class="text-white font-black uppercase tracking-tighter text-lg leading-tight">MGCE</span>
+                    <span class="text-[8px] text-primary font-black uppercase tracking-[0.3em]">MALL</span>
                 </div>
             </a>
             
-            <nav class="flex items-center gap-1 md:gap-4 shrink-0">
-                <a href="/shop" class="hidden lg:block text-sm font-bold hover:text-primary transition-colors dark:text-slate-300">Shop</a>
-                <a href="/sell" class="hidden lg:block text-sm font-bold text-primary">Sell</a>
-                
-                <!-- Theme Toggle -->
-                <!-- Theme Toggle -->
-                <button onclick="toggleTheme()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all text-accent group" title="Switch Theme">
-                    <i data-lucide="sun-moon" class="w-5 h-5 group-hover:rotate-12 transition-transform"></i>
-                </button>
+            <nav class="flex items-center gap-1 md:gap-2 pr-2">
+                <div class="hidden md:flex items-center gap-1 mr-2 bg-white/5 p-1 rounded-2xl">
+                    <a href="shop.html" class="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Shop</a>
+                    <a href="sell.html" class="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-primary">Post</a>
+                </div>
 
-                <a href="/account" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-navy dark:text-slate-300"><i data-lucide="user" class="w-5 h-5"></i></a>
-                <button @click="mobileMenu = !mobileMenu" class="md:hidden p-2 text-navy dark:text-white"><i data-lucide="menu" class="w-5 h-5"></i></button>
+                <!-- Icons Group -->
+                <div class="flex items-center gap-1">
+                    <a href="shop.html?filter=favorites" class="p-3 text-red-500 hover:bg-white/5 rounded-2xl transition-all" title="My Favorites">
+                        <i data-lucide="heart" class="w-5 h-5"></i>
+                    </a>
+                    <button onclick="toggleTheme()" class="p-3 text-primary hover:bg-white/5 rounded-2xl transition-all group" title="Switch Theme">
+                        <i data-lucide="sun-moon" class="w-5 h-5 group-hover:rotate-12 transition-transform"></i>
+                    </button>
+                    <a href="account.html" class="p-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-2xl transition-all">
+                        <i data-lucide="user" class="w-5 h-5"></i>
+                    </a>
+                    <button x-show="user" @click="window.handleLogout()" class="p-3 text-red-400 hover:bg-red-500/10 rounded-2xl transition-all">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </button>
+                    <button @click="mobileMenu = !mobileMenu" class="md:hidden p-3 text-white">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                </div>
             </nav>
-        </div>
+        </header>
+    </div>
 
     </header>
 
@@ -381,11 +394,13 @@
             }
         };
 
-        // Initialize DB on load to speed up submission
+        // Initialize on load to speed up submission
         window.addEventListener('load', () => {
-            window.MarketplaceDB.init().catch(console.error);
             lucide.createIcons();
         });
     </script>
+    <script src="assets/js/storage.js"></script>
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/app.js"></script>
 </body>
 </html>

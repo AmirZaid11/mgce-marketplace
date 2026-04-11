@@ -43,7 +43,7 @@
       ">
 
     <!-- Luxe Navbar -->
-    <div class="fixed top-6 inset-x-0 z-50 px-4 md:px-8 pointer-events-none">
+    <div id="mgce-navbar-wrapper" class="fixed inset-x-0 z-50 px-4 md:px-8 pointer-events-none">
         <header class="container mx-auto max-w-6xl nav-capsule flex items-center justify-between gap-4 pointer-events-auto animate-luxe-up">
             <a href="index.html" class="flex items-center gap-3 pl-4 group">
                 <img src="assets/images/mgce.jpeg" alt="Logo" class="h-10 w-10 min-w-[40px] rounded-2xl shadow-lg shadow-black/20 group-hover:scale-110 transition-transform">
@@ -198,6 +198,10 @@
                     </div>
 
                     <div class="relative">
+                        <div id="trending-grid" class="mgce-grid-fix grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                            <!-- Trending items injected by app.js -->
+                        </div>
+                    </div>
                         <div id="trending-slider" class="flex gap-8 overflow-x-auto snap-x snap-mandatory pb-10 no-scrollbar">
                             <!-- Trending items dynamically injected by app.js -->
                             <div class="flex-shrink-0 w-80 h-96 luxe-card animate-pulse opacity-20"></div>

@@ -143,6 +143,48 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (window.MarketplaceDB) {
         await window.MarketplaceDB.init();
         
+        // --- UNIVERSAL BROADCAST ENGINE (ELEVATED) ---
+        (async () => {
+            const broadcast = await window.MarketplaceDB.getBroadcast();
+            if (broadcast && broadcast.message) {
+                document.body.classList.add('has-broadcast');
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+                    @keyframes flicker { 
+                        0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 1; text-shadow: 0 0 10px var(--primary); }
+                        20%, 24%, 55% { opacity: 0.2; text-shadow: none; }
+                    }
+                    .animate-marquee { animation: marquee 30s linear infinite; }
+                    .animate-flicker { animation: flicker 3s infinite; }
+                `;
+                document.head.appendChild(style);
+
+                const banner = document.createElement('div');
+                banner.className = 'fixed top-0 left-0 w-full bg-navy/95 backdrop-blur-2xl border-b border-primary/30 h-10 z-[100] flex items-center overflow-hidden shadow-2xl';
+                banner.innerHTML = `
+                    <div class="flex items-center h-full px-6 bg-navy z-10 border-r border-primary/20 shadow-[10px_0_20px_rgba(0,0,0,0.5)]">
+                        <span class="animate-flicker flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-tighter">
+                            <span class="w-1.5 h-1.5 bg-red-600 rounded-full"></span>
+                            LIVE NOTICE
+                        </span>
+                    </div>
+                    <div class="flex-1 overflow-hidden relative">
+                        <div class="animate-marquee whitespace-nowrap inline-block py-2">
+                            <span class="text-[12px] font-black text-white uppercase tracking-widest px-10">
+                                ${broadcast.message} • ${broadcast.message} • ${broadcast.message}
+                            </span>
+                        </div>
+                    </div>
+                    <button onclick="document.body.classList.remove('has-broadcast'); this.closest('div').remove()" class="h-full px-4 bg-navy z-10 border-l border-primary/20 text-slate-500 hover:text-red-500 transition-colors">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                `;
+                document.body.appendChild(banner);
+                lucide.createIcons();
+            }
+        })();
+
         const session = await window.MarketplaceDB.getCurrentSession();
         if (session) {
             await window.MarketplaceDB.refreshSession();
@@ -220,45 +262,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Check for Administrator Broadcasts
-    const broadcast = await window.MarketplaceDB.getBroadcast();
-        if (broadcast && broadcast.message) {
-            const style = document.createElement('style');
-            style.innerHTML = `
-                @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-                @keyframes flicker { 
-                    0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 1; text-shadow: 0 0 10px var(--primary); }
-                    20%, 24%, 55% { opacity: 0.2; text-shadow: none; }
-                }
-                .animate-marquee { animation: marquee 30s linear infinite; }
-                .animate-flicker { animation: flicker 3s infinite; }
-            `;
-            document.head.appendChild(style);
-
-            const banner = document.createElement('div');
-            banner.className = 'fixed top-16 left-0 w-full bg-navy/90 backdrop-blur-xl border-y border-primary/30 h-10 z-[45] flex items-center overflow-hidden';
-            banner.innerHTML = `
-                <div class="flex items-center h-full px-6 bg-navy z-10 border-r border-primary/20 shadow-[10px_0_20px_rgba(0,0,0,0.5)]">
-                    <span class="animate-flicker flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-tighter">
-                        <span class="w-1.5 h-1.5 bg-red-600 rounded-full"></span>
-                        LIVE NOTICE
-                    </span>
-                </div>
-                <div class="flex-1 overflow-hidden relative">
-                    <div class="animate-marquee whitespace-nowrap inline-block py-2">
-                        <span class="text-[12px] font-black text-white uppercase tracking-widest px-10">
-                            ${broadcast.message} • ${broadcast.message} • ${broadcast.message}
-                        </span>
-                    </div>
-                </div>
-                <button onclick="this.closest('div').remove()" class="h-full px-4 bg-navy z-10 border-l border-primary/20 text-slate-500 hover:text-red-500 transition-colors">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-            `;
-            document.body.appendChild(banner);
-            lucide.createIcons();
-        }
-    }
 
     // Apply theme
     if (localStorage.getItem('theme') === 'dark' || 
@@ -379,7 +382,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     suggestedGrid.innerHTML = `
                         <div class="mt-20 space-y-8">
                             <h3 class="text-2xl font-black text-navy dark:text-white uppercase tracking-tight">You might also like...</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div class="mgce-grid-fix grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                                 ${await Promise.all(suggested.map(l => renderListingCard(l))).then(cards => cards.join(''))}
                             </div>
                         </div>
@@ -445,8 +448,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const favIds = session.favorites || [];
             const myFavs = localListings.filter(l => favIds.includes(l.id));
             if (myFavs.length > 0) {
-                myListingsGrid.classList.remove('grid-cols-1');
-                myListingsGrid.classList.add('grid-cols-1', 'sm:grid-cols-2');
+                myListingsGrid.classList.add('mgce-grid-fix', 'grid', 'grid-cols-1', 'sm:grid-cols-2');
                 myListingsGrid.innerHTML = await Promise.all(myFavs.map(l => renderListingCard(l))).then(cards => cards.join(''));
             } else {
                 myListingsGrid.innerHTML = `
