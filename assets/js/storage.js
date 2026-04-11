@@ -369,6 +369,67 @@ class MarketplaceStorage {
         });
     }
 
+    // --- Silent Local Persistance (Sync Engine Landing Zone) ---
+    async saveListingLocally(listing) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['listings'], 'readwrite');
+            const store = transaction.objectStore('listings');
+            const request = store.put(listing);
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async deleteListingLocally(id) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['listings'], 'readwrite');
+            const store = transaction.objectStore('listings');
+            const request = store.delete(id);
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async banPhoneLocally(phone, timestamp) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['blacklist'], 'readwrite');
+            const store = transaction.objectStore('blacklist');
+            const request = store.put({ phone, timestamp });
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async unbanPhoneLocally(phone) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['blacklist'], 'readwrite');
+            const store = transaction.objectStore('blacklist');
+            const request = store.delete(phone);
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async setVerificationLocally(phone, status) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['verifications'], 'readwrite');
+            const store = transaction.objectStore('verifications');
+            const request = status ? store.put({ phone, timestamp: Date.now() }) : store.delete(phone);
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async setBroadcastLocally(message) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['broadcasts'], 'readwrite');
+            const store = transaction.objectStore('broadcasts');
+            const request = store.put({ id: 'current', message, timestamp: Date.now() });
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
     async getTrendingListings(limit = 6) {
         let all = await this.getAllListings();
         // Sort by hearts descending
