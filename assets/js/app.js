@@ -135,14 +135,51 @@ document.addEventListener('DOMContentLoaded', async () => {
             resetSessionTimer();
         }
 
-    // --- Elite Cloud Pulse ---
-    const pulse = document.getElementById('cloud-pulse');
-    if (pulse && window.MarketplaceDB.firestore) {
-        setTimeout(() => {
-            pulse.classList.remove('opacity-0');
-            pulse.classList.add('opacity-100');
-        }, 1500); 
-    }
+    // --- Universal Cloud Status Injection ---
+    window.injectCloudStatusIndicator = () => {
+        const header = document.querySelector('header');
+        if (!header || document.getElementById('global-cloud-pill')) return;
+
+        // Find the right target (Logo area or similar)
+        const logoBrand = header.querySelector('.flex.flex-col.leading-tight') || header.querySelector('.sm\\:flex.flex-col');
+        if (logoBrand) {
+            const pill = document.createElement('div');
+            pill.id = 'global-cloud-pill';
+            pill.className = 'flex items-center gap-1.5 ml-3 px-2 py-1 rounded-full border border-white/5 bg-white/5 backdrop-blur-md transition-all duration-500 opacity-0 scale-90';
+            pill.innerHTML = `
+                <div class="pill-dot w-1.5 h-1.5 rounded-full ${window.mgceCloudStatus === 'online' ? 'bg-green-500 shadow-[0_0_8px_#22c55e]' : 'bg-orange-500 animate-pulse'}"></div>
+                <span class="pill-text text-[7px] font-black uppercase tracking-widest text-slate-400">
+                    ${window.mgceCloudStatus === 'online' ? 'Cloud Sync' : 'Local Data'}
+                </span>
+            `;
+            logoBrand.after(pill);
+            
+            // Fade in elegantly
+            setTimeout(() => {
+                pill.classList.remove('opacity-0', 'scale-90');
+                pill.classList.add('opacity-100', 'scale-100');
+            }, 500);
+        }
+    };
+
+    // Listen for Cloud State Changes
+    window.addEventListener('mgce-cloud-state-change', (e) => {
+        const pill = document.getElementById('global-cloud-pill');
+        if (pill) {
+            const dot = pill.querySelector('.pill-dot');
+            const text = pill.querySelector('.pill-text');
+            if (e.detail.status === 'online') {
+                dot.className = 'pill-dot w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]';
+                text.innerText = 'Cloud Sync';
+            } else {
+                dot.className = 'pill-dot w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse';
+                text.innerText = 'Local Data';
+            }
+        }
+    });
+
+    // Run injection
+    injectCloudStatusIndicator();
 
     // --- Real-Time Sync Engine: Re-render on Cloud Update ---
     window.addEventListener('mgce-db-updated', async (e) => {

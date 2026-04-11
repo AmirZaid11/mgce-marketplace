@@ -80,10 +80,15 @@ class MarketplaceStorage {
                                 if (firebase.auth().currentUser) {
                                     console.log("MGCE: Global Cloud Handshake Verified! ✅");
                                     window.mgceCloudStatus = 'online';
+                                    window.dispatchEvent(new CustomEvent('mgce-cloud-state-change', { detail: { status: 'online' } }));
+                                    
+                                    // Global Migration: Rescue local data to the cloud
+                                    this.migrateLocalData();
                                 }
                             } catch (e) {
                                 console.warn("MGCE Cloud: Handshake delayed or offline. Proceeding in Local-First mode.", e.message);
                                 window.mgceCloudStatus = 'offline';
+                                window.dispatchEvent(new CustomEvent('mgce-cloud-state-change', { detail: { status: 'offline' } }));
                             }
                         }
 
@@ -654,6 +659,36 @@ class MarketplaceStorage {
             request.onsuccess = () => resolve(request.result);
             request.onerror = () => reject(request.error);
         });
+    }
+
+    // --- Global Migration Engine ---
+    async migrateLocalData() {
+        if (!this.firestore) return;
+        const sessionPhone = localStorage.getItem('mgce_session_phone');
+        if (!sessionPhone) return;
+
+        console.log("MGCE Cloud: Initiating Global Migration Audit...");
+        try {
+            const localListings = await this.getAllListings();
+            const myItems = localListings.filter(l => l.sellerPhone === sessionPhone);
+            
+            if (myItems.length > 0) {
+                console.log(`MGCE Cloud: Scanning ${myItems.length} personal items for cloud status...`);
+                for (const item of myItems) {
+                    // Direct Cloud Push (Ensures old items move to Firestore)
+                    await this.firestore.collection('listings').doc(item.id).set({
+                        ...item,
+                        lastSync: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                }
+                console.log(`MGCE Cloud: Migration Pulse Complete. ${myItems.length} items verified in global vault! ✅`);
+                
+                // Final Pulse: Notify UI that migration might have brought new data
+                window.dispatchEvent(new CustomEvent('mgce-db-updated', { detail: { type: 'listings' } }));
+            }
+        } catch (e) {
+            console.warn("MGCE Cloud: Migration Audit paused.", e.message);
+        }
     }
 }
 
