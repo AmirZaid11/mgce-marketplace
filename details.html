@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Item Details | Maseno Marketplace</title>
+    <title>Item Details | MGCE MALL</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -49,7 +49,7 @@
                 <img src="assets/images/mgce.jpeg" alt="MGCE Logo" class="h-8 md:h-12 w-auto shrink-0 logo-glow">
                 <div class="flex flex-col leading-tight border-l border-slate-200 dark:border-slate-700 pl-2 overflow-hidden">
                     <span class="font-black text-navy dark:text-white text-sm md:text-lg tracking-tight uppercase truncate">MGCE</span>
-                    <span class="text-[9px] text-primary font-black uppercase tracking-[0.2em] italic">Marketplace</span>
+                    <span class="text-[9px] text-primary font-black uppercase tracking-[0.2em] italic">MALL</span>
                 </div>
             </a>
             
@@ -96,7 +96,7 @@
             <!-- Menu Header -->
             <div class="p-6 border-b border-border dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 sticky top-0 z-10">
                 <div class="flex flex-col">
-                    <span class="font-black uppercase tracking-tighter text-xl leading-none">MGCE</span>
+                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">MGCE | <span class="text-primary italic">MALL</span></h1>
                     <span class="text-[9px] text-primary font-black uppercase tracking-[0.2em]">Navigation</span>
                 </div>
                 <button @click="mobileMenu = false" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500">
@@ -146,7 +146,7 @@
             <nav class="flex text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-8 gap-2">
                 <a href="/" class="hover:text-primary">Home</a>
                 <span>/</span>
-                <a href="/shop" class="hover:text-primary">Marketplace</a>
+                <a href="/shop" class="hover:text-primary">MALL</a>
                 <span>/</span>
                 <span class="text-navy dark:text-white">Details</span>
             </nav>
@@ -173,7 +173,7 @@
     <footer class="bg-navy text-white pt-20 pb-8 mt-20">
         <div class="container mx-auto px-4 text-center space-y-4">
             <p class="text-xs text-slate-500 font-bold uppercase tracking-[0.3em]">MGCE | GIRLS SOCIETY</p>
-            <p class="text-[10px] text-slate-600 font-bold uppercase tracking-widest">© 2026 Maseno Girl Child Empowerment Marketplace</p>
+            <p class="text-[10px] text-slate-600 font-bold uppercase tracking-widest">© 2026 MGCE MALL</p>
             <button onclick="window.goToAdmin()" class="opacity-30 hover:opacity-100 transition-opacity text-slate-400 hover:text-primary mt-4 block mx-auto">
                 <i data-lucide="shield-check" class="w-5 h-5 mx-auto"></i>
             </button>
@@ -193,7 +193,7 @@
             listing = $event.detail.listing; 
             window.MarketplaceDB.getCurrentSession().then(s => {
                 const bName = s ? s.name : 'a member';
-                message = `Hi ${listing.sellerName}, I'm ${bName} from the MGCE Community. I'm interested in your '${listing.title}' on the Marketplace!`;
+                message = `Hi ${listing.sellerName}, I'm ${bName} from the MGCE Community. I'm interested in your '${listing.title}' on the MGCE MALL!`;
             });
          "
          class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" x-cloak>

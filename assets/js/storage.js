@@ -1,5 +1,5 @@
 /**
- * MGCE Marketplace - Storage Layer (IndexedDB)
+ * MGCE MALL - Storage Layer (IndexedDB)
  * Handles listings, multiple images, and user profiles persistently.
  */
 
@@ -94,7 +94,7 @@ class MarketplaceStorage {
                             }
                         }
 
-                        console.log("MGCE: Elite Cloud Sync Engine Active.");
+                        console.log("MGCE: MALL Cloud Sync Engine Active.");
                         
                         // Start Background Sync
                         this.syncCloudData();

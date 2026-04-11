@@ -1,5 +1,5 @@
 /**
- * MGCE Marketplace - Firebase Configuration
+ * MGCE MALL - Firebase Configuration
  * Connects the static frontend to the global Firestore backend.
  */
 

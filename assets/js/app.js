@@ -1,5 +1,5 @@
 /**
- * MGCE Marketplace - Logic Layer
+ * MGCE MALL - Logic Layer
  * Merges static listings with local IndexedDB data and handles rendering.
  */
 
@@ -352,7 +352,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (listing) {
             detailsContainer.innerHTML = await renderListingDetails(listing);
-            document.title = `${listing.title} | MGCE Marketplace`;
+            document.title = `${listing.title} | MGCE MALL`;
             
             // Render Suggested Items
             const suggestedGrid = document.getElementById('suggested-items');
@@ -599,7 +599,7 @@ async function renderListingCard(listing) {
                         </span>
                     `}
                     ${listing.isVerified ? `
-                        <span class="status-pill status-pill-elite">Elite Verified</span>
+                        <span class="status-pill status-pill-elite">MALL Verified</span>
                     ` : ''}
                 </div>
             </a>
@@ -761,7 +761,7 @@ async function renderListingDetails(listing) {
                             <p class="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-[0.2em] mb-1">Empowered Seller</p>
                             <div class="flex items-center gap-2">
                                 <p class="font-black text-navy dark:text-white text-2xl uppercase tracking-tighter">${listing.sellerName}</p>
-                                ${listing.isVerified ? '<i data-lucide="verified" class="w-6 h-6 text-primary" title="Elite Verified Seller"></i>' : ''}
+                                ${listing.isVerified ? '<i data-lucide="verified" class="w-6 h-6 text-primary" title="MALL Verified Seller"></i>' : ''}
                                 ${listing.badge ? `<span class="bg-primary/20 text-primary px-2.5 py-1 rounded-lg font-black text-[9px] uppercase tracking-widest border border-primary/20 ml-2 shadow-lg shadow-primary/5">${listing.badge}</span>` : ''}
                             </div>
                         </div>
@@ -792,7 +792,7 @@ window.deleteListing = async (id) => {
 }
 
 window.handleLogout = async () => {
-    if (confirm("Logout from MGCE Marketplace?")) {
+    if (confirm("Logout from MGCE MALL?")) {
         await window.MarketplaceDB.clearSession();
         alert("See you soon! Your session has been closed safely.");
         window.location.href = 'index.html';
@@ -882,7 +882,7 @@ window.handleLiveSearch = async (e) => {
     if (!filtered.length) {
         container.innerHTML = `<div class="col-span-full py-20 text-center space-y-4">
             <i data-lucide="search-x" class="w-12 h-12 text-slate-300 mx-auto"></i>
-            <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">No results matching your elite taste.</p>
+            <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">No results matching your MALL taste.</p>
         </div>`;
         lucide.createIcons();
         return;
@@ -899,7 +899,7 @@ window.shareListing = async (title, id) => {
     const url = `${window.location.origin}/details?id=${id}`;
     if (navigator.share) {
         try {
-            await navigator.share({ title: `Elite Market: ${title}`, url });
+            await navigator.share({ title: `MALL: ${title}`, url });
         } catch (e) {
             console.warn("Share failed", e);
         }

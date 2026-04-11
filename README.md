@@ -1,4 +1,4 @@
-# MGCE Elite Marketplace (Static Edition)
+# MGCE MALL (Static Edition)
 
 A premium, modern directory-style marketplace for **Maseno Girl Child Empowerment (MGCE)**. This platform focuses on ultra-fast performance, zero-dependency hosting, and hardened session security.
 
