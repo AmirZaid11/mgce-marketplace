@@ -67,15 +67,23 @@ class MarketplaceStorage {
                         const app = firebase.initializeApp(window._mgceFirebaseConfig);
                         this.firestore = firebase.firestore();
                         
-                        // --- Phase 2: Elite Handshake ---
+                        // --- Phase 2: Elite Handshake with Safety Timeout ---
                         if (firebase.auth) {
                             console.log("MGCE: Reaching for Global Cloud Handshake...");
-                            await firebase.auth().signInAnonymously().catch(e => {
-                                console.error("MGCE Cloud Error: Anonymous Handshake Failed.", e.message);
-                            });
                             
-                            if (firebase.auth().currentUser) {
-                                console.log("MGCE: Global Cloud Handshake Verified! ✅");
+                            // 5s Safety Race
+                            const handshakePromise = firebase.auth().signInAnonymously();
+                            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Handshake Timeout")), 5000));
+                            
+                            try {
+                                await Promise.race([handshakePromise, timeoutPromise]);
+                                if (firebase.auth().currentUser) {
+                                    console.log("MGCE: Global Cloud Handshake Verified! ✅");
+                                    window.mgceCloudStatus = 'online';
+                                }
+                            } catch (e) {
+                                console.warn("MGCE Cloud: Handshake delayed or offline. Proceeding in Local-First mode.", e.message);
+                                window.mgceCloudStatus = 'offline';
                             }
                         }
 
@@ -115,12 +123,14 @@ class MarketplaceStorage {
                 // Cloud Sync Profile
                 if (this.firestore) {
                     try {
+                        console.log(`MGCE Cloud: Broadcasting profile update for [${user.phone}]... 📡`);
                         await this.firestore.collection('profiles').doc(user.phone).set({
                             ...user,
                             lastSync: firebase.firestore.FieldValue.serverTimestamp()
                         }, { merge: true });
+                        console.log("MGCE Cloud: Profile Handshake Complete! Profile is now global. ✅");
                     } catch (e) {
-                        console.warn("MGCE: Profile Cloud sync failed.", e.message);
+                         console.error("MGCE Cloud Error: Profile sync failed.", e.message);
                     }
                 }
                 resolve();
