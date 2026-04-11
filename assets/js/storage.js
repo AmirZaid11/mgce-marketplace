@@ -66,7 +66,20 @@ class MarketplaceStorage {
                     try {
                         const app = firebase.initializeApp(window._mgceFirebaseConfig);
                         this.firestore = firebase.firestore();
-                        console.log("MGCE: Elite Cloud Sync Initialized.");
+                        
+                        // --- Phase 2: Elite Handshake ---
+                        if (firebase.auth) {
+                            console.log("MGCE: Reaching for Global Cloud Handshake...");
+                            await firebase.auth().signInAnonymously().catch(e => {
+                                console.error("MGCE Cloud Error: Anonymous Handshake Failed.", e.message);
+                            });
+                            
+                            if (firebase.auth().currentUser) {
+                                console.log("MGCE: Global Cloud Handshake Verified! ✅");
+                            }
+                        }
+
+                        console.log("MGCE: Elite Cloud Sync Engine Active.");
                         
                         // Start Background Sync
                         this.syncCloudData();
@@ -287,7 +300,7 @@ class MarketplaceStorage {
 
         // 1. Listings Listener
         this.firestore.collection('listings').onSnapshot(async (snapshot) => {
-            console.log(`MGCE Cloud: Received ${snapshot.size} items.`);
+            console.log(`MGCE Cloud: Received Global Pulse [${snapshot.size} items].`);
             const transaction = this.db.transaction(['listings'], 'readwrite');
             const store = transaction.objectStore('listings');
             
@@ -302,10 +315,13 @@ class MarketplaceStorage {
 
             // Notify UI that a global pulse was received
             window.dispatchEvent(new CustomEvent('mgce-db-updated', { detail: { type: 'listings' } }));
+        }, (err) => {
+            console.error("MGCE Cloud Error: Listings Sync Failed (Check Firestore Rules)", err.message);
         });
 
         // 2. Profiles Sync (Verification & Badges)
         this.firestore.collection('profiles').onSnapshot(async (snapshot) => {
+            console.log(`MGCE Cloud: Synchronizing Identity Vault...`);
             const transaction = this.db.transaction(['users'], 'readwrite');
             const store = transaction.objectStore('users');
             
@@ -317,6 +333,8 @@ class MarketplaceStorage {
             });
 
             window.dispatchEvent(new CustomEvent('mgce-db-updated', { detail: { type: 'profiles' } }));
+        }, (err) => {
+            console.error("MGCE Cloud Error: Profiles Sync Failed (Check Firestore Rules)", err.message);
         });
     }
 
@@ -421,8 +439,9 @@ class MarketplaceStorage {
                             ...listing,
                             lastSync: firebase.firestore.FieldValue.serverTimestamp()
                         }, { merge: true });
+                        console.log(`MGCE Cloud: Listing [${listing.title}] Broadcasted Successfully! 📡`);
                     } catch (e) {
-                        console.warn("MGCE: Listing Cloud push failed.", e.message);
+                        console.error("MGCE Cloud Error: Listing Broadcast failed.", e.message);
                     }
                 }
                 resolve();
