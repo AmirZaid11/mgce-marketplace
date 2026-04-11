@@ -487,10 +487,11 @@
     <script>
         function adminPanel() {
             return {
+                currentTab: 'inventory',
                 isAuthorized: sessionStorage.getItem('adminAuth') === 'true',
                 keyInput: '',
                 error: '',
-                stats: { listings: [], sellers: [], totalRevenue: 0, totalActive: 0, totalItems: 0 },
+                stats: { listings: [], sellers: [], totalRevenue: 0, totalActive: 0, totalItems: 0, broadcast: { message: '' } },
                 proxyForm: { sellerName: '', sellerPhone: '', title: '', price: '', category: '', description: '', type: 'product' },
                 proxyImages: [],
                 toast: { show: false, message: '', type: 'success' },

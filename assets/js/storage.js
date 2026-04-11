@@ -14,9 +14,10 @@ class MarketplaceStorage {
     }
 
     async _ensure() {
-        if (this._initPromise) await this._initPromise;
+        if (this._initPromise) {
+            await this._initPromise;
+        }
         if (!this.db) {
-            // Self-init if called prematurely
             await this.init();
         }
     }
@@ -59,7 +60,8 @@ class MarketplaceStorage {
             };
 
             request.onsuccess = async (event) => {
-                this.db = event.target.result;
+                const db = event.target.result;
+                this.db = db;
                 
                 // Initialize Firebase Cloud Power
                 if (window.firebase && window._mgceFirebaseConfig) {
